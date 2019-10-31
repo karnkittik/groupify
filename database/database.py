@@ -6,7 +6,6 @@ class DB:
     def __init__(self):
         try:
             self.conn = sqlite3.connect('groupify.db')
-            c = self.conn.cursor()
         except Error:
             print(Error)
 

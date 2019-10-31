@@ -1,0 +1,60 @@
+interface eventHandler {
+  +nodeJoin(Node n)
+  +nodeLeave(Node n)
+  +receiveGroupBroadcast(GroupBroadcast b)
+  +receiveMessageBroadcast(BroadcastMessage m)
+  +receiveMessageGroup(GroupMessage m)
+  +receiveGroupJoinRequest(Request r)
+  +receiveJoinOK(int groupID)
+  +receiveJoinDeny(int groupID)
+  +recieveMessage(Message m)
+}
+
+interface sender {
+  +sendMessage(Message m)
+  +sendMessageBroadcast(BroadcastMessage m)
+  +sendMessageGroup(GroupMessage m)
+  +sendGroupJoinRequest(Request r)
+}
+
+class Node {
+  +IP
+  +username
+  +firstName
+  +lastName
+  +faculty
+  +year
+  +groupID
+}
+
+class GroupBroadcast {
+  +username
+  +groupID
+}
+
+class Request {
+  +fromUsername
+  +toUsername
+  +groupID //group ID that sender would like to join
+  +message //message of sender
+}
+
+class Message {
+  +fromUsername
+  +toUsername
+  +time
+  +message
+}
+
+class BroadcastMessage {
+  +fromUsername
+  +time
+  +message
+}
+
+class GroupMessage {
+  +fromUsername
+  +groupID
+  +time
+  +message
+}

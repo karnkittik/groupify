@@ -1,0 +1,9 @@
+associate group 0
+create group [physical address] - admin
+broadcast group 
+
+receive group => add group
+
+joinRequest to admin
+
+broadcast
