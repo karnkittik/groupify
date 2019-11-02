@@ -1,7 +1,7 @@
 class Message:
     def __init__(self, fromUsername, toUsername, timestamp, body=dict()):
         self.fromUsername = fromUsername
-        self.fromUsername = fromUsername
+        self.toUsername = toUsername
         self.timestamp = timestamp
         self.message = body.get('message', '')
 
