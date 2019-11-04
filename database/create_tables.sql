@@ -6,7 +6,7 @@ CREATE TABLE `group` (
 );
 
 
-CREATE TABLE member (
+CREATE TABLE user (
   username varchar(10) PRIMARY KEY,
   firstname varchar(20),
   lastname varchar(20),
@@ -17,11 +17,10 @@ CREATE TABLE member (
 
 CREATE TABLE group_member (
   group_id varchar(10) NOT NULL,
-  username varchar(20) NOT NULL,
+  username varchar(20) PRIMARY KEY,
   FOREIGN KEY (group_id) REFERENCES `group`(group_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (username) REFERENCES member(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 
 CREATE TABLE message_private (
   from_username varchar(20) NOT NULL,

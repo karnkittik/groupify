@@ -3,29 +3,59 @@ from sqlite3 import Error
 
 
 class DB:
-    def __init__(self):
+    conn = sqlite3.connect('groupify.db')
+
+    @staticmethod
+    def connect():
         try:
-            self.conn = sqlite3.connect('groupify.db')
+            conn = sqlite3.connect('groupify.db')
         except Error:
             print(Error)
 
-    def init_table(self):
-        c = self.conn.cursor()
-        sql = open('./database/create_tables.sql', 'r').read()
-        c.executescript(sql)
+    @staticmethod
+    def init_table():
+        try:
+            DB.connect()
+            c = conn.cursor()
+            sql = open('./database/create_tables.sql', 'r').read()
+            c.executescript(sql)
+        except Error as e:
+            print(e)
+        finally:
+            conn.close()
 
-    def destroy_table(self):
-        sql = open('./database/destroy_tables.sql', 'r').read()
-        self.conn.cursor().executescript(sql)
+    @staticmethod
+    def destroy_table():
+        try:
+            DB.connect()
+            sql = open('./database/destroy_tables.sql', 'r').read()
+            conn.cursor().executescript(sql)
+        except Error as e:
+            print(e)
+        finally:
+            conn.close()
 
-    def execute(self, cmd):
-        c = self.conn.cursor()
-        return c.execute(cmd)
+    @staticmethod
+    @connect
+    def execute(cmd, data=None):
+        try:
+            DB.connect()
+            c = conn.cursor()
+            if(data is not None):
+                return c.execute(cmd, data)
+            return c.execute(cmd)
+        except Error as e:
+            print(e)
+        finally:
+            conn.close()
 
-    def executemany(self, cmd, entities):
-        c = self.conn.cursor()
-        c.executemany(cmd, entities)
-
-
-if __name__ == "__main__":
-    db = DB()
+    @staticmethod
+    def executemany(cmd, entities):
+        try:
+            DB.connect()
+            c = conn.cursor()
+            c.executemany(cmd, entities)
+        except Error as e:
+            print(e)
+        finally:
+            conn.close()
