@@ -30,6 +30,7 @@ class Node {
 class GroupBroadcast {
   +username
   +groupID
+  +role
 }
 
 class Request {

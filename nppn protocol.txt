@@ -1,0 +1,21 @@
+#Draft of the nppn protocol
+Header specification (30 bytes):
+src IP|4 bytes|IP address of sender
+src Username| 6 bytes|Mac address of sender
+src Group:8 bytes|Group Id of sender (generated from mac address of group admin) 0 when user is not associated with any group
+des Group| 8 bytes| group ID of destination (use when sending member request or leave request)
+content length| 2 bytes| size of payload
+flag| 2 bytes| detail below
+	bit 0: admin flag - set when sender is an admin of group
+	bit 1: member flag - set when sender is a member of the group
+	bit 2: broadcast - set when this packet should be broadcast
+	bit 3: group broadcast - (if broadcast is set to true) this flag, if set, specify that the message should be broadcast to group member only
+	bit 4: member request - set when sender request for group membership
+	bit 5: leave request - set when sender wants to leave the group
+	bit 6: acknowledge request - set when admin accept member request
+	bit 7: deny request - set when admin deny member request
+	bit 8: big indianness - set to true if payload contains big indian binary format; false otherwise
+	bit 9-15: reserve for future use
+
+Payload (0-65535 bytes):
+Can be any binary data (but we will use only a string of json)
