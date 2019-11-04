@@ -1,8 +1,6 @@
 from tkinter import *
 from data_class_eiei import *
 
-counter = 0
-
 class show_all_group:
 
     def __init__(self,root_frame,all_group):
@@ -41,8 +39,8 @@ class show_all_group:
         self.inside_frame3 = Frame(root_frame)
         self.inside_frame3.pack()
 
-        self.del_btn = Button(self.inside_frame3,text = "delete", command =self.del_list) 
-        self.del_btn.pack(side = LEFT)
+        # self.del_btn = Button(self.inside_frame3,text = "delete", command =self.del_list) 
+        # self.del_btn.pack(side = LEFT)
 
         self.sel_btn = Button(self.inside_frame3,text = "Check Member", command =self.selected_node_update) 
         self.sel_btn.pack(side = LEFT)
@@ -71,33 +69,3 @@ class show_all_group:
             self.selected_node.insert(END,x)
 
 
-##import logic part
-all_group = all_group()
-g1 = group("test1",2)
-g1.add_member("a")
-g1.add_member("b")
-g2 = group("test2",2)
-g2.add_member("x")
-g2.add_member("y")
-all_group.add_group(g1)
-all_group.add_group(g2)
-
-
-##inintial ui part
-window =  Tk()
-window.option_add("*Font", "helvetica 16")
-top_frame = Frame()
-top_frame.pack(side = LEFT)
-
-
-# window.geometry('500x500')
-window.title("GUI")
-
-main_window = show_all_group(top_frame,all_group)
-
-
-while True:
-    if main_window.all_group.is_change_to_view == True:
-        main_window.refresh_list()
-    window.update_idletasks()
-    window.update()
