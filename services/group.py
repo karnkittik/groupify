@@ -1,20 +1,30 @@
+from typing import Union
 from database.database import DB
+from services.user import UserService
 
 
 class GroupService:
 
     @staticmethod
-    def getGroup(groupID=None):
-        result = None
+    def getGroup(groupID: str = None) -> Union[list, tuple]:
+        groups = []
         if(groupID is None):
             result = DB.execute('SELECT * FROM `group`')
-            for row in result:
-                print(row)
+            groups = result.fetchall()
         else:
             result = DB.execute(
-                'SELECT * FROM `group` WHERE group_id=?', groupID)
-            print(result)
-        return result
+                'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (groupID,))
+            groups = result.fetchone()
+        return groups
+
+    @staticmethod
+    def createGroup(groupName, limitPerson):
+        username = UserService.getProfile()[0]
+        DB.executemultiplesql([
+            ('REPLACE INTO `group`(group_id, group_name, max_person) VALUES (?,?,?)',
+             (username, groupName, limitPerson)),
+            ('UPDATE self SET is_admin=true', None)
+        ])
 
     @staticmethod
     def addGroup(groupID, groupName, maxPerson=4):
@@ -29,13 +39,11 @@ class GroupService:
     @staticmethod
     def getMember(groupID):
         result = DB.execute(
-            'SELECT * FROM `user` RIGHT JOIN `group_member` ON user.username=group_member.username WHERE group_id=?', (groupID))
-        for row in result:
-            print(row)
-        return result
+            'SELECT * FROM `user` RIGHT JOIN `group_member` ON user.username=group_member.username WHERE group_id=?', (groupID,))
+        return result.fetchall()
 
     @staticmethod
     def removeMember(username):
         result = DB.execute(
-            'DELETE * FROM group_member WHERE username=?', username)
+            'DELETE * FROM group_member WHERE username=?', (username,))
         print(result)
