@@ -3,29 +3,72 @@ from sqlite3 import Error
 
 
 class DB:
-    def __init__(self):
+    # conn = sqlite3.connect('groupify.db')
+
+    @staticmethod
+    def connect():
         try:
-            self.conn = sqlite3.connect('groupify.db')
+            conn = sqlite3.connect('groupify.db')
+            return conn
         except Error:
             print(Error)
 
-    def init_table(self):
-        c = self.conn.cursor()
-        sql = open('./database/create_tables.sql', 'r').read()
-        c.executescript(sql)
+    @staticmethod
+    def init_table():
+        try:
+            conn = DB.connect()
+            c = conn.cursor()
+            sql = open('./database/create_tables.sql', 'r').read()
+            c.executescript(sql)
+            conn.commit()
+        except Error as e:
+            raise
 
-    def destroy_table(self):
-        sql = open('./database/destroy_tables.sql', 'r').read()
-        self.conn.cursor().executescript(sql)
+    @staticmethod
+    def destroy_table():
+        try:
+            conn = DB.connect()
+            sql = open('./database/destroy_tables.sql', 'r').read()
+            conn.cursor().executescript(sql)
+            conn.commit()
+        except Error as e:
+            raise
 
-    def execute(self, cmd):
-        c = self.conn.cursor()
-        return c.execute(cmd)
+    @staticmethod
+    def execute(cmd, data: tuple = None):
+        try:
+            conn = DB.connect()
+            c = conn.cursor()
+            result = None
+            if(data is not None):
+                result = c.execute(cmd, data)
+            else:
+                result = c.execute(cmd)
+            conn.commit()
+            return result
+        except Error as e:
+            raise
 
-    def executemany(self, cmd, entities):
-        c = self.conn.cursor()
-        c.executemany(cmd, entities)
+    @staticmethod
+    def executemultiplesql(cmdWithData: list):
+        try:
+            conn = DB.connect()
+            c = conn.cursor()
+            for (cmd, data) in cmdWithData:
+                if data is None:
+                    c.execute(cmd)
+                else:
+                    c.execute(cmd, data)
+            conn.commit()
+        except Error as e:
+            raise
 
-
-if __name__ == "__main__":
-    db = DB()
+    @staticmethod
+    def executemany(cmd, entities: list):
+        try:
+            conn = DB.connect()
+            c = conn.cursor()
+            c.executemany(cmd, entities)
+            conn.commit()
+        except Error as e:
+            raise

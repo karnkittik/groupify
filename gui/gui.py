@@ -1,93 +1,189 @@
 from tkinter import *
+from data_class import *
 
-window = Tk()
-window.title("Groupify")
-window.geometry("820x600")
+class UserInformation(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
 
-info = Frame(window)
-info.pack()
-chat = Frame(window)
-chat.pack(side="right")
-g_chat = Frame(chat)
-g_chat.pack()
-p_chat = Frame(chat)
-p_chat.pack()
+        self.label = Label(self, text="Information: ")
+        self.label.grid(row=0)
 
-#Function
-#Submit Button
-def update():
-    first_name = e1.get()
-    last_name = e2.get()
-    nickname = e3.get()
-    year = e4.get()
-    faculty = e5.get()
+        self.l1 = Label(self, text="First Name: ")
+        self.l1.grid(row=1, column=0)
 
-    # user_info = first_name+"    "+last_name+"    "+nickname+"    "+year+"    "+faculty
-    Label(info,text = "Updated").grid(row=0, column=1)
+        self.e1 = Entry(self)
+        self.e1.grid(row=1, column=1)
 
-#Send message
-def sent(chat,msg_box,var):
-    chat.config(state="normal")
-    msg = msg_box.get()
-    chat.insert(INSERT, msg+"\n")
-    chat.config(state="disabled")
-    var.set("")
+        self.l2 = Label(self, text="Last Name: ")
+        self.l2.grid(row=1, column=2)
 
-#Text Header
-Label(info, text="Information:").grid(row=0, column=0)
+        self.e2 = Entry(self)
+        self.e2.grid(row=1, column=3)
 
-#Form
-#FirstName
-Label(info, text="First Name").grid(row=1,column=0)
-e1 = Entry(info)
-e1.grid(row=1,column=1)
+        self.l3 = Label(self, text="Nickname: ")
+        self.l3.grid(row=1, column=4)
 
-#LastName
-Label(info, text="Last Name").grid(row=1,column=2)
-e2 = Entry(info)
-e2.grid(row=1,column=3)
+        self.e3 = Entry(self, width=10)
+        self.e3.grid(row=1, column=5)
+        
+        self.l4 = Label(self, text="Year: ")
+        self.l4.grid(row=1, column=6)
 
-#Nickname
-Label(info, text="Nickname").grid(row=1,column=4)
-e3 = Entry(info, width=10)
-e3.grid(row=1,column=5)
+        self.e4 = Entry(self, width=5)
+        self.e4.grid(row=1, column=7)
 
-#Year
-Label(info, text="Year").grid(row=1,column=6)
-e4 = Entry(info, width=7)
-e4.grid(row=1,column=7)
+        self.l5 = Label(self, text="Faculty: ")
+        self.l5.grid(row=1, column=8)
 
-#Faculty
-Label(info, text="Faculty").grid(row=1,column=8)
-e5 = Entry(info)
-e5.grid(row=1,column=9)
+        self.e5 = Entry(self)
+        self.e5.grid(row=1, column=9)
 
-#Update Button
-Button(info, text="Update", command=update).grid(row=1,column=10,padx=10)
+        self.update_button = Button(self, text="Update", command=self.update)
+        self.update_button.grid(row=1, column=10, padx=10)
+
+    def update(self):
+        first_name = self.e1.get()
+        last_name = self.e2.get()
+        nickname = self.e3.get()
+        year = self.e4.get()
+        faculty = self.e5.get()
+
+        current_user.update(first_name,last_name,nickname,year,faculty)
+        print(first_name,last_name,nickname,year,faculty)
+
+class GlobalChat(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
+
+        self.header = Label(self, text="Global Chat")
+        self.header.grid(row=0)
+
+        self.chat = Text(self, width=25, height=10)
+        self.chat.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+        scrollb = Scrollbar(self, command=self.chat.yview)
+        scrollb.grid(row=1, column=2, sticky="nsew")
+        self.chat['yscrollcommand'] = scrollb.set
+
+        self.var1 = StringVar()
+
+        self.msg_field = Entry(self, textvariable=self.var1, width=25)
+        self.msg_field.grid(row=2, column=0, pady=10)
+        
+        self.sent = Button(self, text="Sent", width=5, command=self.sent_msg)
+        self.sent.grid(row=2, column=1, padx=10)
+
+    def sent_msg(self):
+        msg = message(current_user.nickname,self.msg_field.get())
+
+        self.update(msg)
+        global_chat_mock.update(msg)
+    
+    def update(self,msg):
+        self.chat.config(state="normal")
+        self.chat.insert(INSERT, msg.display_msg())
+        self.chat.config(state="disabled")
+        self.chat.see("end")
+        self.var1.set("")
+
+class GlobalChatMock(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
+
+        self.header = Label(self, text="Global Chat")
+        self.header.grid(row=0)
+
+        self.chat = Text(self, width=25, height=10)
+        self.chat.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+        scrollb = Scrollbar(self, command=self.chat.yview)
+        scrollb.grid(row=1, column=2, sticky="nsew")
+        self.chat['yscrollcommand'] = scrollb.set
+
+        self.var1 = StringVar()
+
+        self.msg_field = Entry(self, textvariable=self.var1, width=25)
+        self.msg_field.grid(row=2, column=0, pady=10)
+        
+        self.sent = Button(self, text="Sent", width=5, command=self.sent_msg)
+        self.sent.grid(row=2, column=1, padx=10)
+
+    def sent_msg(self):
+        msg = message(current_user.nickname,self.msg_field.get())
+
+        self.update(msg)
+        global_chat.update(msg)
+
+    def update(self,msg):
+        self.chat.config(state="normal")
+        self.chat.insert(INSERT, msg.display_msg())
+        self.chat.config(state="disabled")
+        self.chat.see("end")
+        self.var1.set("")
+
+class PersonalChat(Frame):
+    def __init__(self, parent, *args, **kwargs):
+        Frame.__init__(self, parent, *args, **kwargs)
+        self.parent = parent
+
+        self.header2 = Label(self, text="Personal Chat")
+        self.header2.grid(row=0)
+
+        self.chat2 = Text(self, width=25, height=10)
+        self.chat2.grid(row=1, column=0, columnspan=2, sticky="nsew")
+
+        scrollb2 = Scrollbar(self, command=self.chat2.yview)
+        scrollb2.grid(row=1, column=2, sticky="nsew")
+        self.chat2.configure(yscrollcommand = scrollb2.set)
+
+        self.var2 = StringVar()
+
+        self.msg_field2 = Entry(self, textvariable=self.var2, width=25)
+        self.msg_field2.grid(row=2, column=0, pady=10)
+        
+        self.sent2 = Button(self, text="Sent", width=5, command=self.sent_msg)
+        self.sent2.grid(row=2, column=1, padx=10)
+
+    def sent_msg(self):
+        msg = message(current_user.nickname,self.msg_field2.get())
+        # msg_queue.append(msg)
+        # msg.update_chat()
+
+        self.update(msg)
+
+    def update(self,msg):
+        self.chat2.config(state="normal")
+        self.chat2.insert(INSERT, msg.display_msg())
+        self.chat2.config(state="disabled")
+        self.chat2.see("end")
+        self.var2.set("")
+
+#Initiate a user
+current_user = user()
+
+#Initiate msg_queue
+msg_queue = []
+
+#Set up Main window
+root = Tk()
+root.title("Groupify")
+# root.geometry("850x400")
+
+side_frame = Frame()
+
+UserInformation(root).pack()
+side_frame.pack(side="right")
 
 
-#Global Chat
-Label(g_chat, text="Global Chat").grid(row=0)
-text1 = Text(g_chat, state="disabled", width=25, height=10)
-text1.grid(row=1, column=0,  pady=10)
+# GlobalChat(side_frame).pack(side="top", fill="both", pady=20, padx=20)
+global_chat = GlobalChat(side_frame)
+global_chat.pack(side="left",pady=20, padx=20)
+# PersonalChat(side_frame).pack(side="bottom", fill="both", pady=20, padx=20)
+global_chat_mock = GlobalChatMock(side_frame)
+global_chat_mock.pack(pady=20, padx=20)
+PersonalChat(side_frame).pack(side="right",pady=20, padx=20)
 
-Scrollbar(g_chat).grid(row=1, column=1, ipady=60)
-
-var1 = StringVar()
-e6 = Entry(g_chat, textvariable=var1, width=30)
-e6.grid(row=2, column=0, pady=5)
-
-Button(g_chat, text="send", command= lambda: sent(text1,e6,var1)).grid(row=2, column=2, padx=10)
-
-#Personal Chat
-Label(p_chat, text="Personal Chat").grid(row=0)
-text2 = Text(p_chat, state="disabled", width=25, height=10)
-text2.grid(row=1, column=0,  pady=10)
-
-var2 = StringVar()
-e7 = Entry(p_chat, textvariable=var2, width=30)
-e7.grid(row=2, column=0)
-
-Button(p_chat, text="send", command= lambda: sent(text2,e7,var2)).grid(row=2, column=1, padx=10)
-
-window.mainloop()
+root.mainloop()
