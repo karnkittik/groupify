@@ -1,5 +1,7 @@
 import threading, time, logging
 import requests as rq
+import socket, json
+from network.utility import *
 
 class NodeDiscovery (threading.Thread):
 
@@ -38,6 +40,56 @@ class NodeDiscovery (threading.Thread):
 		#newNode contains node haven't seen previously, but is being seen now = enter node
 		return newNode, oldNode
 		
+class NodeWorker(threading.Thread):
+
+	def __init__(self, addr, resultList, index, info):
+		threading.Thread.__init__(self)
+		self.addr = addr
+		self.resultList = resultList
+		self.index = index
+		self.sock = None	
+		self.ip = socket.gethostbyname(socket.gethostname())
+		self.info = info
+
+	def createNodeRequest(self):
+		header = {
+		"srcIP":self.ip,
+		"srcUsername":self.info.get("username", ""),
+		"srcGroup":self.info.get("groupID",""),
+		"desGroup":"",
+		"admin":self.info.get("isAdmin",""),
+		"member":self.info.get("isMember",""),
+		"broadcast":False,
+		"groupBroadcast":False,
+		"memberRq":False,
+		"ackRq":False,
+		"denyRq":False,
+		"leaveRq":False,
+		"nodeRq":True,
+		"big":False,
+		"nodeRep":False,
+		"contentLength": 0,
+		}
+		return packHeader(header)
+
+	def run(self):
+		self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock.connect((self.addr, 8421))
+		sendMsg = self.createNodeRequest()
+		self.sock.sendall(sendMsg)
+		headerByte = self.sock.recv(30)
+		header = unpackHeader(headerByte)
+		msgLength = header["contentLength"]
+		recvByte = b""
+		recvLength = 0
+		while recvLength < msgLength:
+			tempByte = self.sock.recv(2096)
+			recvLength += len(tempByte)
+			recvByte += tempByte
+		data = json.loads(recvByte.decode("utf-8"))
+		self.resultList[self.index] = data
+		self.sock.close()
+
 
 logger = logging.getLogger('NodeDiscovery')
 logger.setLevel(logging.DEBUG)

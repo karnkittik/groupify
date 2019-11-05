@@ -1,4 +1,8 @@
 from network.utility import *
+from entities.message import *
+from entities.node import *
+from entities.group import *
+from entities.request import *
 import sys
 import selectors
 import json
@@ -105,7 +109,7 @@ class ListenerMessage:
 	def write(self):
 		if self.request:
 			if not self.response_created:
-				self.create_response()
+				self.createNodeReply()
 
 		self._write()
 
