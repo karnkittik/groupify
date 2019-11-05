@@ -7,9 +7,9 @@ class UserService:
     @staticmethod
     def initMe(username, firstname, lastname, faculty, year):
         DB.executemultiplesql([
-            ('INSERT INTO `user`(username, firstname, lastname, faculty, year) VALUES(?,?,?,?,?)',
+            ('REPLACE INTO `user`(username, firstname, lastname, faculty, year) VALUES(?,?,?,?,?)',
              (username, firstname, lastname, faculty, year,)),
-            ('INSERT INTO self(username) VALUES (?)', (username,))
+            ('REPLACE INTO self(username) VALUES (?)', (username,))
         ])
 
     @staticmethod
@@ -48,5 +48,5 @@ class UserService:
     @staticmethod
     def getAvailableUser() -> list:
         result = DB.execute(
-            'SELECT * FROM `user` WHERE group_id="0"')
+            'SELECT username, firstname, lastname, faculty, year FROM `user` WHERE group_id="0"')
         return result.fetchall()

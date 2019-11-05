@@ -38,4 +38,4 @@ class FriendList:
         for (username, firstname, lastname, faculty, year) in availableFriends:
             self.username.append(username)
             self.list_box.insert(END, faculty + '#' +
-                                 year + ' ' + firstname + ' ' + lastname)
+                                 str(year) + ' ' + firstname + ' ' + lastname)

@@ -64,6 +64,10 @@ class GroupList:
         # self.del_btn = Button(self.inside_frame3,text = "delete", command =self.del_list)
         # self.del_btn.pack(side = LEFT)
 
+        self.refresh_btn = Button(
+            self.inside_frame3, text="Refresh", command=self.refresh_list)
+        self.refresh_btn.pack(side=LEFT)
+
         self.sel_btn = Button(
             self.inside_frame3, text="Check Member", command=self.selected_node_update)
         self.sel_btn.pack(side=LEFT)
@@ -100,5 +104,6 @@ class GroupList:
         members = GroupService.getMember(self.group_id[sel_index])
         # for x in self.all_group.get_group(sel_index).group_member:
         #     self.selected_node.insert(END, x)
-        for (username, firstname, lastname, faculty, year) in members:
-            self.selected_node.insert(END, firstname + ' ' + lastname)
+        for (username, firstname, lastname, faculty, year, group_id) in members:
+            self.selected_node.insert(END, faculty + '#' +
+                                      str(year) + ' ' + firstname + ' ' + lastname)
