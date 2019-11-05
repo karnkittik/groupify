@@ -21,37 +21,30 @@ class UserInformation(Frame):
 
         self.e2 = Entry(self)
         self.e2.grid(row=1, column=3)
-
-        self.l3 = Label(self, text="Nickname: ")
-        self.l3.grid(row=1, column=4)
-
-        self.e3 = Entry(self, width=10)
-        self.e3.grid(row=1, column=5)
         
         self.l4 = Label(self, text="Year: ")
-        self.l4.grid(row=1, column=6)
+        self.l4.grid(row=1, column=4)
 
         self.e4 = Entry(self, width=5)
-        self.e4.grid(row=1, column=7)
+        self.e4.grid(row=1, column=5)
 
         self.l5 = Label(self, text="Faculty: ")
-        self.l5.grid(row=1, column=8)
+        self.l5.grid(row=1, column=6)
 
         self.e5 = Entry(self)
-        self.e5.grid(row=1, column=9)
+        self.e5.grid(row=1, column=7)
 
         self.update_button = Button(self, text="Update", command=self.update)
-        self.update_button.grid(row=1, column=10, padx=10)
+        self.update_button.grid(row=1, column=8, padx=10)
 
     def update(self):
         first_name = self.e1.get()
         last_name = self.e2.get()
-        nickname = self.e3.get()
         year = self.e4.get()
         faculty = self.e5.get()
 
-        current_user.update(first_name,last_name,nickname,year,faculty)
-        print(first_name,last_name,nickname,year,faculty)
+        current_user.update(first_name,last_name,year,faculty)
+        print(first_name,last_name,year,faculty)
 
 class GlobalChat(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -77,47 +70,10 @@ class GlobalChat(Frame):
         self.sent.grid(row=2, column=1, padx=10)
 
     def sent_msg(self):
-        msg = message(current_user.nickname,self.msg_field.get())
+        msg = message(current_user.first_name,self.msg_field.get())
 
         self.update(msg)
-        global_chat_mock.update(msg)
     
-    def update(self,msg):
-        self.chat.config(state="normal")
-        self.chat.insert(INSERT, msg.display_msg())
-        self.chat.config(state="disabled")
-        self.chat.see("end")
-        self.var1.set("")
-
-class GlobalChatMock(Frame):
-    def __init__(self, parent, *args, **kwargs):
-        Frame.__init__(self, parent, *args, **kwargs)
-        self.parent = parent
-
-        self.header = Label(self, text="Global Chat")
-        self.header.grid(row=0)
-
-        self.chat = Text(self, width=25, height=10)
-        self.chat.grid(row=1, column=0, columnspan=2, sticky="nsew")
-
-        scrollb = Scrollbar(self, command=self.chat.yview)
-        scrollb.grid(row=1, column=2, sticky="nsew")
-        self.chat['yscrollcommand'] = scrollb.set
-
-        self.var1 = StringVar()
-
-        self.msg_field = Entry(self, textvariable=self.var1, width=25)
-        self.msg_field.grid(row=2, column=0, pady=10)
-        
-        self.sent = Button(self, text="Sent", width=5, command=self.sent_msg)
-        self.sent.grid(row=2, column=1, padx=10)
-
-    def sent_msg(self):
-        msg = message(current_user.nickname,self.msg_field.get())
-
-        self.update(msg)
-        global_chat.update(msg)
-
     def update(self,msg):
         self.chat.config(state="normal")
         self.chat.insert(INSERT, msg.display_msg())
@@ -149,7 +105,7 @@ class PersonalChat(Frame):
         self.sent2.grid(row=2, column=1, padx=10)
 
     def sent_msg(self):
-        msg = message(current_user.nickname,self.msg_field2.get())
+        msg = message(current_user.first_name,self.msg_field2.get())
         # msg_queue.append(msg)
         # msg.update_chat()
 
@@ -300,10 +256,6 @@ side_frame.pack(side = LEFT)
 #global chat
 global_chat = GlobalChat(side_frame)
 global_chat.pack(side=LEFT,pady=20, padx=20)
-
-#global chat mock
-global_chat_mock = GlobalChatMock(side_frame)
-global_chat_mock.pack(pady=20, padx=20)
 
 #personal pack
 PersonalChat(side_frame).pack(side=RIGHT,pady=20, padx=20)

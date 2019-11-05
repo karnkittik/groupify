@@ -4,14 +4,12 @@ class user:
     def __init__(self):
         self.first_name = ""
         self.last_name = ""
-        self.nickname = ""
         self.year = ""
         self.faculty = ""
     
-    def update(self,first_name,last_name,nickname,year,faculty):
+    def update(self,first_name,last_name,year,faculty):
         self.first_name = first_name
         self.last_name = last_name
-        self.nickname = nickname
         self.year = year
         self.faculty = faculty
 
