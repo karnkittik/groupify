@@ -1,4 +1,5 @@
-import subprocess, time, logging
+import subprocess, time, logging, struct
+from bitarray import bitarray
 
 
 logger = logging.getLogger('adhoc.utility')
@@ -62,3 +63,64 @@ def stripQuote(input):
 def macToUserId(mac):
 	mac = mac.replace(":")
 	return mac.upper()
+
+def unpackHeader(data):
+	header = dict()
+	pattern = "4B6x8x8xH2x"
+	ip1,ip2,ip3,ip4,contentLength = struct.unpack(pattern, data)
+	header["srcIP"] = f"{ip1}.{ip2}.{ip3}.{ip4}"
+	header["srcUsername"] = data[4:10].hex()
+	header["srcGroup"] = data[10:18].hex()
+	header["desGroup"] = data[18:26].hex()
+	header["contentLength"] = contentLength
+	flags = data[28:]
+	bit = bitarray()
+	bit.frombytes(flags)
+	header["admin"] = bit[0]
+	header["member"] = bit[1]
+	header["broadcast"] = bit[2]
+	header["groupBroadcast"] = bit[3]
+	header["memberRq"] = bit[4]
+	header["leaveRq"] = bit[5]
+	header["ackRq"] = bit[6]
+	header["denyRq"] = bit[7]
+	header["big"] = bit[8]
+	header["nodeRq"] = bit[9]
+	header["nodeRep"] = bit[10]
+	return header
+
+def packHeader(header):
+	data = bytes()
+	data += struct.pack("4B", *[int(x) for x in header["srcIP"].split(".")])
+	data += bytes.fromhex(header["srcUsername"])
+	data += bytes.fromhex(header["srcGroup"])
+	data += bytes.fromhex(header["desGroup"])
+	data += struct.pack("H", header["contentLength"])
+	bit = bitarray(16)
+	bit.setall(0)
+	bit[0] = header["admin"]
+	bit[1] = header["member"]
+	bit[2] = header["broadcast"]
+	bit[3] = header["groupBroadcast"]
+	bit[4] = header["memberRq"]
+	bit[5] = header["leaveRq"]
+	bit[6] = header["ackRq"]
+	bit[7] = header["denyRq"]
+	bit[8] = header["big"]
+	bit[9] = header["nodeRq"]
+	bit[10] = header["nodeRep"]
+	data += bit.tobytes()
+	return data
+
+
+def mocSelf():
+	d = {"username":"AABBCCDDEEFF",
+"groupID":"FFFFAABBCCDDEEFF",
+"role":"admin",
+"isAdmin":True,
+"isMember":True,
+"firstname":"Pawin",
+"lastname":"Piemthai",
+"faculty":"Engineering",
+"year":4}
+	return d
