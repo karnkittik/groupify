@@ -9,8 +9,10 @@ class GroupService:
     def getGroup(groupID: str = None) -> Union[list, tuple]:
         groups = []
         if(groupID is None):
-            result = DB.execute('SELECT * FROM `group`')
+            result = DB.execute(
+                'SELECT `group`.group_id, `group`.group_name, `group`.max_person, COUNT(username) FROM `user` LEFT JOIN `group` WHERE `group`.group_id=`user`.group_id AND `group`.group_id != "0"')
             groups = result.fetchall()
+            print(groups)
         else:
             result = DB.execute(
                 'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (groupID,))
@@ -23,7 +25,8 @@ class GroupService:
         DB.executemultiplesql([
             ('REPLACE INTO `group`(group_id, group_name, max_person) VALUES (?,?,?)',
              (username, groupName, limitPerson)),
-            ('UPDATE self SET is_admin=true', None)
+            ('UPDATE `user` SET group_id=? WHERE username=?', (username, username, )),
+            ('UPDATE self SET is_admin=true WHERE username=?', (username,))
         ])
 
     @staticmethod
@@ -39,7 +42,7 @@ class GroupService:
     @staticmethod
     def getMember(groupID):
         result = DB.execute(
-            'SELECT * FROM `user` RIGHT JOIN `group_member` ON user.username=group_member.username WHERE group_id=?', (groupID,))
+            'SELECT * FROM `user` WHERE group_id=?', (groupID,))
         return result.fetchall()
 
     @staticmethod

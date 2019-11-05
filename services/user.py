@@ -13,7 +13,7 @@ class UserService:
         ])
 
     @staticmethod
-    def getProfile():
+    def getProfile() -> tuple:
         username = DB.execute('SELECT * FROM self').fetchone()[0]
         return UserService.getUser(username)
 
