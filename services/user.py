@@ -18,6 +18,14 @@ class UserService:
         return UserService.getUser(username)
 
     @staticmethod
+    def isAdmin() -> boolean:
+        return DB.execute('SELECT * FROM self LIMIT 1').fetchone()[1]
+
+    @staticmethod
+    def isMember() -> boolean:
+        return DB.execute('SELCT * FROM self LIMIT 1').fetchone()[2]
+
+    @staticmethod
     def updateProfile(firstname, lastname, faculty, year):
         username = UserService.getProfile()[0]
         DB.execute('UPDATE `user` SET firstname=?, lastname=?, faculty=?, year=? WHERE username=?',

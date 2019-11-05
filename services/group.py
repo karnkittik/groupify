@@ -36,8 +36,10 @@ class GroupService:
 
     @staticmethod
     def addMember(groupID, username):
-        DB.execute(
-            'INSERT INTO `group_member`(group_id, username) VALUES (?,?)', (groupID, username))
+        DB.executemultiplesql([
+            ('UPDATE `user` SET group_id=? WHERE username=?', (groupID, username)),
+            ('UPDATE `self` SET is_member=true WHERE username=?', (username))
+        ])
 
     @staticmethod
     def getMember(groupID):
