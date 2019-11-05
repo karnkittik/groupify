@@ -1,10 +1,12 @@
+from network.utility import *
 import sys
 import selectors
 import json
 import io
 import struct
+import socket
 
-class Server:
+class ListenerMessage:
 	def __init__(self, selector, sock, addr, eventListener):
 		self.selector = selector
 		self.sock = sock
@@ -13,6 +15,8 @@ class Server:
 		self._recv_buffer = b""
 		self._send_buffer = b""
 		self.header = None
+		self.ip = socket.gethostbyname(socket.gethostname())
+		self.info = mocSelf()
 		self.request = None
 		self.response_created = False
 
@@ -46,7 +50,7 @@ class Server:
 			print("sending", repr(self._send_buffer), "to", self.addr)
 			try:
 				# Should be ready to write
-				sent = self.sock.send(self._send_buffer)
+				sent = self.sock.sendall(self._send_buffer)
 			except BlockingIOError:
 				# Resource temporarily unavailable (errno EWOULDBLOCK)
 				pass
@@ -56,57 +60,33 @@ class Server:
 				if sent and not self._send_buffer:
 					self.close()
 
-	def _json_encode(self, obj, encoding):
-		return json.dumps(obj, ensure_ascii=False).encode(encoding)
-
-	def _json_decode(self, json_bytes, encoding):
-		tiow = io.TextIOWrapper(
-			io.BytesIO(json_bytes), encoding=encoding, newline=""
-		)
-		obj = json.load(tiow)
-		tiow.close()
-		return obj
-
-	def _create_message(
-		self, *, content_bytes, content_type, content_encoding
-	):
+	def createNodeReplyMessage(self):
+		contentJson = json.dumps(self.info)
+		contentByte = contentJson.encode("utf-8")
 		header = {
-			"byteorder": sys.byteorder,
-			"content-type": content_type,
-			"content-encoding": content_encoding,
-			"content-length": len(content_bytes),
+			"srcIP":self.ip,
+			"srcUsername":self.info.get("username", ""),
+			"srcGroup":self.info.get("groupID",""),
+		"desGroup":"",
+		"admin":self.info.get("isAdmin",""),
+		"member":self.info.get("isMember",""),
+		"broadcast":False,
+		"groupBroadcast":False,
+		"memberRq":False,
+		"ackRq":False,
+		"denyRq":False,
+		"leaveRq":False,
+		"nodeRq":False,
+		"big":False,
+		"nodeRep":True,
+			"contentLength": len(contentByte),
 		}
-		header_bytes = self._json_encode(header, "utf-8")
-		message_hdr = struct.pack(">H", len(header_bytes))
-		message = message_hdr + header_bytes + content_bytes
+		messageHeader = packHeader(header)
+		message = messageHeader + contentByte
 		return message
 
-	def _create_response_json_content(self):
-		action = self.request.get("action")
-		if action == "search":
-			query = self.request.get("value")
-			answer = request_search.get(query) or f'No match for "{query}".'
-			content = {"result": answer}
-		else:
-			content = {"result": f'Error: invalid action "{action}".'}
-		content_encoding = "utf-8"
-		response = {
-			"content_bytes": self._json_encode(content, content_encoding),
-			"content_type": "text/json",
-			"content_encoding": content_encoding,
-		}
-		return response
 
-	def _create_response_binary_content(self):
-		response = {
-			"content_bytes": b"First 10 bytes of request: "
-			+ self.request[:10],
-			"content_type": "binary/custom-server-binary-type",
-			"content_encoding": "binary",
-		}
-		return response
-
-	def process_events(self, mask):
+	def processEvents(self, mask):
 		if mask & selectors.EVENT_READ:
 			self.read()
 		if mask & selectors.EVENT_WRITE:
@@ -115,12 +95,12 @@ class Server:
 	def read(self):
 		self._read()
 
-		if self._content_len is None:
-			self.process_header()
+		if self.header is None:
+			self.processHeader()
 
 		if self.header:
 			if self.request is None:
-				self.process_request()
+				self.processRequest()
 
 	def write(self):
 		if self.request:
@@ -150,7 +130,7 @@ class Server:
 			# Delete reference to socket object for garbage collection
 			self.sock = None
 
-	def process_header(self):
+	def processHeader(self):
 		hdrlen = 30
 		if len(self._recv_buffer) >= hdrlen:
 			self.header = unpackHeader(self._recv_buffer[:hdrlen])
@@ -175,33 +155,56 @@ class Server:
 			):
 				if reqhdr not in self.header:
 					raise ValueError(f'Missing required header "{reqhdr}".')
+		print(f"Got header {self.header}")
 
-	def process_request(self):
+	def processRequest(self):
 		contentLength = self.header["contentLength"]
 		if not len(self._recv_buffer) >= contentLength:
 			return
 		data = self._recv_buffer[:contentLength]
 		self._recv_buffer = self._recv_buffer[contentLength:]
-		if self.header["content-type"] == "text/json":
-			encoding = self.header["content-encoding"]
-			self.request = self._json_decode(data, encoding)
-			print("received request", repr(self.request), "from", self.addr)
-		else:
-			# Binary or unknown content-type
-			self.request = data
-			print(
-				f'received {self.header["content-type"]} request from',
-				self.addr,
-			)
-		# Set selector to listen for write events, we're done reading.
-		self._set_selector_events_mask("w")
+		self.request = json.loads(data.decode("utf-8"))
+		print("received request", repr(self.request), "from", self.addr)
+		self.processData()
 
-	def create_response(self):
-		if self.header["content-type"] == "text/json":
-			response = self._create_response_json_content()
+	def processData(self):
+		print("processing request...")
+		#handling broadcast message
+		if self.header["broadcast"]:
+			if self.header["groupBroadcast"]:
+				if self.info.get("groupID","") == self.header["srcGroup"]:
+					msg = GroupMessage(self.header["srcUsername"], self.header["srcGroup"], self.request)
+					self.eventListener.receiveGroupBroadcast(msg)
+				else:
+					print(f"The sender is from group {self.header['srcGroup']}, but this node is in group {self.info.get('groupID','')}")
+					print("Drop request; not from the same group")
+			else:
+				msg = BroadcastMessage(self.header["srcUsername"], self.request)
+				self.eventListener.receiveMessageBroadcast(msg)
+
+		if self.header["memberRq"]:
+			if self.header["desGroup"] == self.info.get("groupID","") and self.info.get("role","") == "admin":
+				req = Request(self.header["srcUsername"], self.header["desGroup"])
+				self.eventListener.receiveGroupJoinRequest(req)
+		elif self.header["ackRq"]:
+			self.eventListener.receiveJoinOK(self.header["srcGroup"])
+		elif self.header["denyRq"]:
+			self.eventListener.receiveJoinDeny(self.header["srcGroup"])
+		elif self.header["nodeRq"]:
+			self._set_selector_events_mask("w")
+			self.createNodeReply()
 		else:
-			# Binary or unknown content-type
-			response = self._create_response_binary_content()
-		message = self._create_message(**response)
+			#personal message
+			msg = Message(self.header["srcUsername"], self.info.get("username",""), self.request)
+			self.eventListener.receiveMessage(msg)
+		if not self.header["nodeRq"]:
+			self.close()
+
+
+
+
+
+	def createNodeReply(self):
+		message = self.createNodeReplyMessage()
 		self.response_created = True
 		self._send_buffer += message

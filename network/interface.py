@@ -1,4 +1,4 @@
-from utility import *
+from network.utility import *
 import re, time, logging
 
 class NetworkInterface:
@@ -180,7 +180,7 @@ class NetworkInterface:
 		logger.info("Successfully disconnected from ad-hoc network")
 
 
-logger = logging.getLogger('adhoc')
+logger = logging.getLogger('Interface')
 logger.setLevel(logging.DEBUG)
 ch = logging.StreamHandler()
 formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')

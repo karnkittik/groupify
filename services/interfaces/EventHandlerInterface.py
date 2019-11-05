@@ -1,5 +1,7 @@
 from entities.node import Node
-
+from entities.message import *
+from entities.request import *
+from entities.group import *
 
 class EventHandlerInterface(object):
     def nodeJoin(self, node: Node):

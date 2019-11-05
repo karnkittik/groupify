@@ -111,3 +111,16 @@ def packHeader(header):
 	bit[10] = header["nodeRep"]
 	data += bit.tobytes()
 	return data
+
+
+def mocSelf():
+	d = {"username":"AABBCCDDEEFF",
+"groupID":"FFFFAABBCCDDEEFF",
+"role":"admin",
+"isAdmin":True,
+"isMember":True,
+"firstname":"Pawin",
+"lastname":"Piemthai",
+"faculty":"Engineering",
+"year":4}
+	return d

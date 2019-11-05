@@ -1,5 +1,9 @@
 from database.database import DB
 from services.interfaces.EventHandlerInterface import EventHandlerInterface
+from entities.node import Node
+from entities.message import *
+from entities.request import *
+from entities.group import *
 
 import tkinter as tk
 from tkinter import ttk
