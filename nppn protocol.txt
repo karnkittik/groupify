@@ -1,6 +1,5 @@
 #Draft of the nppn protocol
-Header specification (30 bytes):
-src IP|4 bytes|IP address of sender
+Header specification (26 bytes):
 src Username| 6 bytes|Mac address of sender
 src Group:8 bytes|Group Id of sender (generated from mac address of group admin) 0 when user is not associated with any group
 des Group| 8 bytes| group ID of destination (use when sending member request or leave request)
@@ -15,7 +14,9 @@ flag| 2 bytes| detail below
 	bit 6: acknowledge request - set when admin accept member request
 	bit 7: deny request - set when admin deny member request
 	bit 8: big indianness - set to true if payload contains big indian binary format; false otherwise
-	bit 9-15: reserve for future use
+	bit 9: node request - request for node info
+	bit 10: node reply - node info response
+	bit 11-15: reserve for future use
 
 Payload (0-65535 bytes):
 Can be any binary data (but we will use only a string of json)
