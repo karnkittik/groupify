@@ -9,9 +9,8 @@ from services.group import GroupService
 # get mac address from pawin
 mac_address = 'mac address'
 
-db = DB()
-db.destroy_table()
-db.init_table()
+DB.destroy_table()
+DB.init_table()
 
 UserService.initMe(mac_address, '', '', '', 1)
 UserService.addUser('mac address2', 'Pawin', 'Piemthai', 'Eng', 4)

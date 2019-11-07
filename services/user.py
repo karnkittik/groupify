@@ -78,7 +78,7 @@ class UserService:
             DB.executemultiplesql([
                 ('UPDATE `user` SET group_id=? WHERE username=?',
                  (newGroupID, username)),
-                ('UPDATE `self` SET is_member=true WHERE username=?', (username))
+                ('UPDATE `self` SET is_member=1 WHERE username=?', (username))
             ])
         else:
             DB.execute(

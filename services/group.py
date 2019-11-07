@@ -27,7 +27,7 @@ class GroupService:
             ('REPLACE INTO `group`(group_id, group_name, max_person) VALUES (?,?,?)',
              (username, groupName, limitPerson)),
             ('UPDATE `user` SET group_id=? WHERE username=?', (username, username, )),
-            ('UPDATE self SET is_admin=true WHERE username=?', (username,))
+            ('UPDATE self SET is_admin=1 WHERE username=?', (username,))
         ])
 
     @staticmethod

@@ -13,6 +13,11 @@ from GUI_ALL.ui.GroupList import GroupList
 from GUI_ALL.data_class import *
 from GUI_ALL.data_class_eiei import *
 
+def closeUI():
+    print('Closing the app')
+    print(setup.net)
+    setup.net.disconnect()
+    root.destroy()
 
 def initUI():
     global all_group
@@ -62,4 +67,5 @@ def initUI():
     #         Group_list.refresh_list()
     #     root.update_idletasks()
     #     root.update()
+    root.protocol('WM_DELETE_WINDOW', closeUI)
     root.mainloop()
