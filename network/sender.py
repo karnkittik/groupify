@@ -10,7 +10,7 @@ import io
 import struct
 import socket
 
-class Sender(:
+class Sender:
 
 	def __init__(self, reverseMap, info):
 		self.reverseMap = reverseMap
@@ -99,7 +99,7 @@ class Sender(:
 		body = json.dumps(data).encode('utf-8')
 		header = {
 		"srcUsername":request.fromUsername,
-		"srcGroup":self.info["groupId"],
+		"srcGroup":self.info["groupID"],
 		"desGroup":request.groupID,
 		"admin":self.info.get("isAdmin",""),
 		"member":self.info.get("isMember",""),
@@ -124,7 +124,7 @@ class Sender(:
 		body = b""
 		header = {
 		"srcUsername":self.info["username"],
-		"srcGroup":self.info["groupId"],
+		"srcGroup":self.info["groupID"],
 		"desGroup":"",
 		"admin":self.info.get("isAdmin",""),
 		"member":self.info.get("isMember",""),
@@ -141,7 +141,7 @@ class Sender(:
 		}
 		packedHeader = packHeader(header)
 		msg = packedHeader + body
-		addr self.reverseMap.get(request.fromUsername)
+		addr = self.reverseMap.get(request.fromUsername)
 		worker = SenderWorker(addr, msg)
 		worker.start()
 
@@ -149,7 +149,7 @@ class Sender(:
 		body = b""
 		header = {
 		"srcUsername":self.info["username"],
-		"srcGroup":self.info["groupId"],
+		"srcGroup":self.info["groupID"],
 		"desGroup":"",
 		"admin":self.info.get("isAdmin",""),
 		"member":self.info.get("isMember",""),
@@ -166,7 +166,7 @@ class Sender(:
 		}
 		packedHeader = packHeader(header)
 		msg = packedHeader + body
-		addr self.reverseMap.get(request.fromUsername)
+		addr = self.reverseMap.get(request.fromUsername)
 		worker = SenderWorker(addr, msg)
 		worker.start()
 
@@ -174,8 +174,8 @@ class Sender(:
 		data = self.info
 		body = json.dumps(data).encode('utf-8')
 		header = {
-		"srcUsername":self.info]"username"],
-		"srcGroup":self.info["groupId"],
+		"srcUsername":self.info["username"],
+		"srcGroup":self.info["groupID"],
 		"desGroup":"",
 		"admin":self.info.get("isAdmin",""),
 		"member":self.info.get("isMember",""),
@@ -198,13 +198,13 @@ class Sender(:
 
 
 
-class SenderWorker:(threading.Thread):
+class SenderWorker(threading.Thread):
 
 	def __init__(self, addr, msg):
 		threading.Thread.__init__(self)
 		self.addr = addr
 		self.msg = msg
-self.sock = None
+		self.sock = None
 
 	def run(self):
 		self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)

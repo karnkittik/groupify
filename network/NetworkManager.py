@@ -8,15 +8,18 @@ import sys
 class NetworkManager:
 
 	def __init__(self):
-		self.macAddress = ""
 		self.net = NetworkInterface()
+		self.macAddress = self.net.getInterfaceMac()
 		self.nodeList = set()
 		self.selfInfo = mocSelf()
 		self.nodeMap = dict()
 		self.reverseMap = dict()
 		self.isRunning = False
-		self.sender = Sender(self.reverseMap, self.info)
+		self.sender = Sender(self.reverseMap, self.selfInfo)
 		self.eventListener = None
+
+	def getMacAddress(self):
+		return self.macAddress
 
 	def connect(self):
 		self.net.connectAdHoc()

@@ -67,12 +67,12 @@ def macToUserId(mac):
 def unpackHeader(data):
 	header = dict()
 	pattern = "6x8x8xH2x"
-	contentLength = struct.unpack(pattern, data)
-	header["srcUsername"] = data[4:10].hex()
-	header["srcGroup"] = data[10:18].hex()
-	header["desGroup"] = data[18:26].hex()
+	contentLength = struct.unpack(pattern, data)[0]
+	header["srcUsername"] = data[:6].hex()
+	header["srcGroup"] = data[6:14].hex()
+	header["desGroup"] = data[14:22].hex()
 	header["contentLength"] = contentLength
-	flags = data[28:]
+	flags = data[24:]
 	bit = bitarray()
 	bit.frombytes(flags)
 	header["admin"] = bit[0]

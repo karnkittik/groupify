@@ -8,7 +8,7 @@ from services.EventHandler import *
 
 class NodeDiscovery (threading.Thread):
 
-	def __init__(self, nodeList: set, nodeMap: dict, reverseMap: dict, eventListener: EventHandler, sender: Sender, info: dict):
+	def __init__(self, nodeList, nodeMap, reverseMap, eventListener, sender, info):
 		threading.Thread.__init__(self)
 		self.nodeList = nodeList
 		self.nodeMap = nodeMap
@@ -34,8 +34,8 @@ class NodeDiscovery (threading.Thread):
 			nodes = self.getAllNode()
 			addedNode, deletedNode = self.diffNode(nodes)
 			self.nodeList = nodes
-			logger.debug(f"Add node: {addedNode}, deleted node: {deletedNode}")
-			logger.debug(f"Len node {len(nodes)}, add node {len(addedNode)}, deleted node {len(deletedNode)}")
+#			logger.debug(f"Add node: {addedNode}, deleted node: {deletedNode}")
+#			logger.debug(f"Len node {len(nodes)}, add node {len(addedNode)}, deleted node {len(deletedNode)}")
 			nodeInfo = self.probeNode(addedNode)
 			for (ip, info) in nodeInfo:
 				createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["groupID"],info)
@@ -47,7 +47,7 @@ class NodeDiscovery (threading.Thread):
 				createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["groupID"],info)
 				self.eventListener.nodeLeave(createdNode)
 				self.nodeMap.pop(ip)
-				self.reverseMap.pop(info["username"]]
+				self.reverseMap.pop(info["username"])
 			self.info = mocSelf()
 			self.sender.sendGroupBroadcast()
 			time.sleep(20)
@@ -111,7 +111,7 @@ class NodeWorker(threading.Thread):
 		sendMsg = self.createNodeRequest()
 		iAttempt = 1
 		while True:
-			logger.debug(f"On thread #{threading.get_ident()}, connection attempt #{iAttempt}")
+#			logger.debug(f"On thread #{threading.get_ident()}, connection attempt #{iAttempt}")
 			try:
 				self.sock.connect((self.addr, 8421))
 			except OSError as e:
@@ -120,13 +120,13 @@ class NodeWorker(threading.Thread):
 			break
 		self.sock.sendall(sendMsg)
 		logger.debug("Send complete")
-		headerByte = self.sock.recv(30)
+		headerByte = self.sock.recv(26)
 		header = unpackHeader(headerByte)
 		msgLength = header["contentLength"]
 		recvByte = b""
 		recvLength = 0
 		while recvLength < msgLength:
-			tempByte = self.sock.recv(2096)
+			tempByte = self.sock.recv(4096)
 			recvLength += len(tempByte)
 			recvByte += tempByte
 		data = json.loads(recvByte.decode("utf-8"))

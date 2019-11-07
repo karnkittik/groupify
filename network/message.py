@@ -45,7 +45,7 @@ class ListenerMessage:
 		else:
 			if data:
 				self._recv_buffer += data
-				logger.debug(f"Add {data} to buffer")
+#				logger.debug(f"Add {data} to buffer")
 			else:
 				raise RuntimeError("Peer closed.")
 
@@ -137,7 +137,7 @@ class ListenerMessage:
 
 	def processHeader(self):
 		hdrlen = 26
-		logger.debug(f"Processing header; buffer is {self._recv_buffer}")
+		logger.debug(f"Processing header")
 		if len(self._recv_buffer) >= hdrlen:
 			self.header = unpackHeader(self._recv_buffer[:hdrlen])
 			self._recv_buffer = self._recv_buffer[hdrlen:]
