@@ -55,7 +55,7 @@ def initUI():
     global_chat.pack(side=LEFT, pady=20, padx=20)
 
     # personal pack
-    PersonalChat(side_frame).pack(side=RIGHT, pady=20, padx=20)
+    # PersonalChat(side_frame).pack(side=RIGHT, pady=20, padx=20)
 
     # while True:
     #     if Group_list.all_group.is_change_to_view == True:

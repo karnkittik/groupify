@@ -18,11 +18,30 @@ class UserService:
         return UserService.getUser(username)
 
     @staticmethod
-    def isAdmin() -> boolean:
+    def isAdmin() -> bool:
         return DB.execute('SELECT * FROM self LIMIT 1').fetchone()[1]
 
     @staticmethod
-    def isMember() -> boolean:
+    def infoBroadcast() -> dict:
+        cur_user = UserService.getProfile()
+        info = {
+            'username': cur_user[0],
+            'firstname': cur_user[1],
+            'lastname': cur_user[2],
+            'faculty': cur_user[3],
+            'group_id': cur_user[4],
+            'group_name': '',
+            'max_person': 0
+        }
+        if (cur_user[4] != '0'):
+            group_info = DB.execute(
+                'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (cur_user[4],))
+            info['group_name'] = group_info[1]
+            info['max_person'] = group_info[2]
+        return info
+
+    @staticmethod
+    def isMember() -> bool:
         return DB.execute('SELCT * FROM self LIMIT 1').fetchone()[2]
 
     @staticmethod
@@ -45,13 +64,25 @@ class UserService:
 
     @staticmethod
     def addUser(username, firstname, lastname, faculty, year, group_id='0'):
-        DB.execute('INSERT INTO `user`(username, firstname, lastname, faculty, year, group_id) VALUES (?,?,?,?,?,?)',
+        DB.execute('REPLACE INTO `user`(username, firstname, lastname, faculty, year, group_id) VALUES (?,?,?,?,?,?)',
                    (username, firstname, lastname, faculty, year, group_id))
 
     @staticmethod
+    def removeUser(username):
+        DB.execute('DELETE * FROM `user` WHERE username=?', (username,))
+
+    @staticmethod
     def updateGroup(username, newGroupID):
-        DB.execute(
-            'UPDATE `user` SET group_id=? WHERE username=?', (newGroupID, username,))
+        curr_username = UserService.getProfile()[0]
+        if curr_username == username:
+            DB.executemultiplesql([
+                ('UPDATE `user` SET group_id=? WHERE username=?',
+                 (newGroupID, username)),
+                ('UPDATE `self` SET is_member=true WHERE username=?', (username))
+            ])
+        else:
+            DB.execute(
+                'UPDATE `user` SET group_id=? WHERE username=?', (newGroupID, username,))
 
     @staticmethod
     def getAvailableUser() -> list:

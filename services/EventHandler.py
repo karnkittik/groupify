@@ -1,4 +1,5 @@
 import logging
+import setup
 from database.database import DB
 from services.interfaces.EventHandlerInterface import EventHandlerInterface
 from entities.node import Node
@@ -6,18 +7,23 @@ from entities.message import *
 from entities.request import *
 from entities.group import *
 
+from services.user import UserService
+from services.group import GroupService
+
 import tkinter as tk
 from tkinter import ttk
 
+global net
 
-def popup_join_request():
+
+def popup_join_request(name):
     popup = tk.Tk()
-    popup.wm_title('Invite to group')
+    popup.wm_title('Request to group')
     label = ttk.Label(
-        popup, text='Would you like to join group?', font=("Helvetica", 10))
+        popup, text=name + ' would like to join your group. Accept?', font=("Helvetica", 10))
     label.pack(side='top', fill='x', pady=10)
-    confirmBtn = ttk.Button(popup, text='Join', command=popup.destroy)
-    cancelBtn = ttk.Button(popup, text='Cancel', command=popup.destroy)
+    confirmBtn = ttk.Button(popup, text='Accept', command=popup.destroy)
+    cancelBtn = ttk.Button(popup, text='Deny', command=popup.destroy)
     confirmBtn.pack()
     cancelBtn.pack()
     popup.mainloop()
@@ -27,9 +33,16 @@ class EventHandler(EventHandlerInterface):
     def nodeJoin(self, node: Node):
         # TODO: Join adhoc
         logger.info(f"Join node {node}")
+        if (node.groupID != '0') and (GroupService.getGroup(node.groupID) is None):
+            pass
+            # GroupService.addGroup(node.groupID, node.body['group_name'], node.body['max_person'])
+        UserService.addUser(node.username, node.firstname,
+                            node.lastname, node.faculty, node.year, node.groupID)
 
     def nodeLeave(self, node: Node):
         # TODO: Leave adhoc
+        # Need to also remove group
+        UserService.removeUser(node.username)
         logger.info(f"Node left {node}")
 
     def receiveGroupBroadcast(self, b: GroupBroadcast):
@@ -43,7 +56,8 @@ class EventHandler(EventHandlerInterface):
 
     def receiveGroupJoinRequest(self, req: Request):
         logger.info(f"Receive request to joining group {req}")
-        popup_join_request()
+        if UserService.isAdmin() and UserService.getProfile()[-1] == req.groupID:
+            popup_join_request(req.fromUsername)
 
     def receiveJoinOK(self, groupID: int):
         logger.info(f"Confirm joining groupID={groupID}")
@@ -61,4 +75,3 @@ ch = logging.StreamHandler()
 formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
-

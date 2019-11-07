@@ -28,8 +28,8 @@ class FriendList:
         self.chat_btn = Button(self.inside_frame2, text="Chat")
         self.chat_btn.pack(side=LEFT)
 
-        self.invite_btn = Button(self.inside_frame2, text="Invite")
-        self.invite_btn.pack(side=LEFT)
+        # self.invite_btn = Button(self.inside_frame2, text="Invite")
+        # self.invite_btn.pack(side=LEFT)
 
     def getFriends(self):
         self.list_box.delete(0, END)

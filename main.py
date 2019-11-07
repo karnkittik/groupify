@@ -10,10 +10,12 @@ from services.group import GroupService
 mac_address = 'mac address'
 
 db = DB()
-# db.destroy_table()
-# db.init_table()
+db.destroy_table()
+db.init_table()
 
 UserService.initMe(mac_address, '', '', '', 1)
+UserService.addUser('mac address2', 'Pawin', 'Piemthai', 'Eng', 4)
+UserService.addUser('mac address3', 'Nathawan', 'Siripokasupkul', 'Eng', 4)
 
 print(UserService.getAvailableUser())
 

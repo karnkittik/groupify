@@ -1,5 +1,6 @@
 from typing import Union
 from database.database import DB
+
 from services.user import UserService
 
 
@@ -35,20 +36,7 @@ class GroupService:
                    (groupID, groupName, maxPerson))
 
     @staticmethod
-    def addMember(groupID, username):
-        DB.executemultiplesql([
-            ('UPDATE `user` SET group_id=? WHERE username=?', (groupID, username)),
-            ('UPDATE `self` SET is_member=true WHERE username=?', (username))
-        ])
-
-    @staticmethod
     def getMember(groupID):
         result = DB.execute(
             'SELECT * FROM `user` WHERE group_id=?', (groupID,))
         return result.fetchall()
-
-    @staticmethod
-    def removeMember(username):
-        result = DB.execute(
-            'DELETE * FROM group_member WHERE username=?', (username,))
-        print(result)

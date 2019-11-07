@@ -77,7 +77,8 @@ class GroupList:
 
     def add_group_tolist(self):
         # self.all_group.add_group(group(self.name_entry_box.get(), 4))
-        GroupService.createGroup(self.name_entry_box.get(), 5)
+        GroupService.createGroup(
+            self.name_entry_box.get(), self.limit_entry_box.get())
         self.refresh_list()
         # print(self.all_group.get_alL_group_name())
 
