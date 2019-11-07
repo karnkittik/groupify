@@ -19,7 +19,6 @@ class ListenerMessage:
 		self._recv_buffer = b""
 		self._send_buffer = b""
 		self.header = None
-		self.ip = socket.gethostbyname(socket.gethostname())
 		self.info = mocSelf()
 		self.request = None
 		self.response_created = False
@@ -46,6 +45,7 @@ class ListenerMessage:
 		else:
 			if data:
 				self._recv_buffer += data
+				logger.debug(f"Add {data} to buffer")
 			else:
 				raise RuntimeError("Peer closed.")
 
@@ -54,7 +54,7 @@ class ListenerMessage:
 			print("sending", repr(self._send_buffer), "to", self.addr)
 			try:
 				# Should be ready to write
-				sent = self.sock.sendall(self._send_buffer)
+				sent = self.sock.send(self._send_buffer)
 			except BlockingIOError:
 				# Resource temporarily unavailable (errno EWOULDBLOCK)
 				pass
@@ -68,7 +68,6 @@ class ListenerMessage:
 		contentJson = json.dumps(self.info)
 		contentByte = contentJson.encode("utf-8")
 		header = {
-			"srcIP":self.ip,
 			"srcUsername":self.info.get("username", ""),
 			"srcGroup":self.info.get("groupID",""),
 		"desGroup":"",
@@ -103,8 +102,10 @@ class ListenerMessage:
 			self.processHeader()
 
 		if self.header:
-			if self.request is None:
+			if self.request is None and self.header["contentLength"] > 0:
 				self.processRequest()
+
+		self.processData()
 
 	def write(self):
 		if self.request:
@@ -135,12 +136,12 @@ class ListenerMessage:
 			self.sock = None
 
 	def processHeader(self):
-		hdrlen = 30
+		hdrlen = 26
+		logger.debug(f"Processing header; buffer is {self._recv_buffer}")
 		if len(self._recv_buffer) >= hdrlen:
 			self.header = unpackHeader(self._recv_buffer[:hdrlen])
 			self._recv_buffer = self._recv_buffer[hdrlen:]
 			for reqhdr in (
-				"srcIP",
 				"srcUsername",
 				"srcGroup",
 				"desGroup",
@@ -159,7 +160,7 @@ class ListenerMessage:
 			):
 				if reqhdr not in self.header:
 					raise ValueError(f'Missing required header "{reqhdr}".')
-		print(f"Got header {self.header}")
+		logger.info(f"Got header {self.header}")
 
 	def processRequest(self):
 		contentLength = self.header["contentLength"]
@@ -169,7 +170,7 @@ class ListenerMessage:
 		self._recv_buffer = self._recv_buffer[contentLength:]
 		self.request = json.loads(data.decode("utf-8"))
 		print("received request", repr(self.request), "from", self.addr)
-		self.processData()
+
 
 	def processData(self):
 		print("processing request...")
@@ -178,18 +179,20 @@ class ListenerMessage:
 			if self.header["groupBroadcast"]:
 				if self.info.get("groupID","") == self.header["srcGroup"]:
 					msg = GroupMessage(self.header["srcUsername"], self.header["srcGroup"], self.request)
-					self.eventListener.receiveGroupBroadcast(msg)
+					self.eventListener.receiveMessageGroup(msg)
 				else:
 					print(f"The sender is from group {self.header['srcGroup']}, but this node is in group {self.info.get('groupID','')}")
 					print("Drop request; not from the same group")
+			elif self.header["memberRq"]:
+				if self.header["desGroup"] == self.info.get("groupID","") and self.info.get("role","") == "admin":
+					req = Request(self.header["srcUsername"], self.header["desGroup"])
+					self.eventListener.receiveGroupJoinRequest(req)
+			elif self.header["nodeRep"]:
+				groupInfo = GroupBroadcast(self.request["username"],self.request["groupID"],self.request["role"], self.request)
+				self.eventListener.receiveGroupBroadcast(groupInfo)
 			else:
 				msg = BroadcastMessage(self.header["srcUsername"], self.request)
 				self.eventListener.receiveMessageBroadcast(msg)
-
-		if self.header["memberRq"]:
-			if self.header["desGroup"] == self.info.get("groupID","") and self.info.get("role","") == "admin":
-				req = Request(self.header["srcUsername"], self.header["desGroup"])
-				self.eventListener.receiveGroupJoinRequest(req)
 		elif self.header["ackRq"]:
 			self.eventListener.receiveJoinOK(self.header["srcGroup"])
 		elif self.header["denyRq"]:
@@ -212,3 +215,12 @@ class ListenerMessage:
 		message = self.createNodeReplyMessage()
 		self.response_created = True
 		self._send_buffer += message
+
+
+logger = logging.getLogger('MessageProcessor')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+

@@ -1,3 +1,4 @@
+import logging
 from database.database import DB
 from services.interfaces.EventHandlerInterface import EventHandlerInterface
 from entities.node import Node
@@ -25,30 +26,39 @@ def popup_join_request():
 class EventHandler(EventHandlerInterface):
     def nodeJoin(self, node: Node):
         # TODO: Join adhoc
-        print("Join node", node)
+        logger.info(f"Join node {node}")
 
     def nodeLeave(self, node: Node):
         # TODO: Leave adhoc
-        print("Node left", node)
+        logger.info(f"Node left {node}")
 
     def receiveGroupBroadcast(self, b: GroupBroadcast):
-        print("Receive group broadcast", b)
+        logger.info(f"Receive group broadcast {b}")
 
     def receiveMessageBroadcast(self, msg: BroadcastMessage):
-        print("Receive message broadcast", msg)
+        logger.info(f"Receive message broadcast {msg}")
 
     def receiveMessageGroup(self, msg: GroupMessage):
-        print("Receive group message", msg)
+        logger.info(f"Receive group message {msg}")
 
     def receiveGroupJoinRequest(self, req: Request):
-        print("Receive request to joining group", req)
+        logger.info(f"Receive request to joining group {req}")
         popup_join_request()
 
     def receiveJoinOK(self, groupID: int):
-        print("Confirm joining groupID=", groupID)
+        logger.info(f"Confirm joining groupID={groupID}")
 
     def receiveJoinDeny(self, groupID: int):
-        print("Deny joining groupID=", groupID)
+        logger.info(f"Deny joining groupID={groupID}")
 
     def receiveMessage(self, msg: Message):
-        print("Receive message", msg)
+        logger.info(f"Receive message {msg}")
+
+
+logger = logging.getLogger('Service')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+

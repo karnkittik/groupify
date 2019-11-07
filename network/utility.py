@@ -66,9 +66,8 @@ def macToUserId(mac):
 
 def unpackHeader(data):
 	header = dict()
-	pattern = "4B6x8x8xH2x"
-	ip1,ip2,ip3,ip4,contentLength = struct.unpack(pattern, data)
-	header["srcIP"] = f"{ip1}.{ip2}.{ip3}.{ip4}"
+	pattern = "6x8x8xH2x"
+	contentLength = struct.unpack(pattern, data)
 	header["srcUsername"] = data[4:10].hex()
 	header["srcGroup"] = data[10:18].hex()
 	header["desGroup"] = data[18:26].hex()
@@ -91,10 +90,9 @@ def unpackHeader(data):
 
 def packHeader(header):
 	data = bytes()
-	data += struct.pack("4B", *[int(x) for x in header["srcIP"].split(".")])
-	data += bytes.fromhex(header["srcUsername"])
-	data += bytes.fromhex(header["srcGroup"])
-	data += bytes.fromhex(header["desGroup"])
+	data += bytes.fromhex(header["srcUsername"].zfill(12))
+	data += bytes.fromhex(header["srcGroup"].zfill(16))
+	data += bytes.fromhex(header["desGroup"].zfill(16))
 	data += struct.pack("H", header["contentLength"])
 	bit = bitarray(16)
 	bit.setall(0)

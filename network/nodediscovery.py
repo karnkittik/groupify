@@ -1,14 +1,21 @@
+from entities.node import Node
 import threading, time, logging
 import requests as rq
 import socket, json
 from network.utility import *
+from services.EventHandler import *
+
 
 class NodeDiscovery (threading.Thread):
 
-	def __init__(self, nodeList, eventListener):
+	def __init__(self, nodeList: set, nodeMap: dict, reverseMap: dict, eventListener: EventHandler, sender: Sender, info: dict):
 		threading.Thread.__init__(self)
 		self.nodeList = nodeList
+		self.nodeMap = nodeMap
+		self.reverseMap = reverseMap
+		self.sender = sender
 		self.eventListener = eventListener
+		self.info = info
 
 	def getAllNode(self):
 		logger.info("Retreaving nodes...")
@@ -18,7 +25,7 @@ class NodeDiscovery (threading.Thread):
 			print("Error in getting node from OLSR")
 		text = res.content.decode("utf-8").strip()
 		nodes = [[x for x in y.split("\t")] for y in text.split("\n")]
-		res = [x[0] for x in nodes]
+		res = [x[0] for x in nodes if (x[0] != '' and ':' not in x[0])]
 		logger.info(f"Found following node: {res}")
 		return set(res)
 
@@ -28,13 +35,42 @@ class NodeDiscovery (threading.Thread):
 			addedNode, deletedNode = self.diffNode(nodes)
 			self.nodeList = nodes
 			logger.debug(f"Add node: {addedNode}, deleted node: {deletedNode}")
-			time.sleep(10)
+			logger.debug(f"Len node {len(nodes)}, add node {len(addedNode)}, deleted node {len(deletedNode)}")
+			nodeInfo = self.probeNode(addedNode)
+			for (ip, info) in nodeInfo:
+				createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["groupID"],info)
+				self.eventListener.nodeJoin(createdNode)
+				self.nodeMap[ip] = info
+				self.reverseMap[info["username"]] = ip
+			for ip in deletedNode:
+				info = self.nodeMap.get(ip)
+				createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["groupID"],info)
+				self.eventListener.nodeLeave(createdNode)
+				self.nodeMap.pop(ip)
+				self.reverseMap.pop(info["username"]]
+			self.info = mocSelf()
+			self.sender.sendGroupBroadcast()
+			time.sleep(20)
+
+	def probeNode(self, nodeList):
+		num = len(nodeList)
+		threadList = [None]*num
+		result = [None]*num
+		for i,j in enumerate(nodeList):
+			threadList[i] = NodeWorker(j,result,i, self.info)
+			threadList[i].start()
+		
+		for thread in threadList:
+			thread.join()
+		return result
 
 	def diffNode(self, nodeList):
 		oldNode = set(self.nodeList)
+		processNode = set(self.nodeList)
 		newNode = set(nodeList)
-		for node in oldNode:
+		for node in processNode:
 			if node in newNode:
+				oldNode.remove(node)
 				newNode.remove(node)
 		#oldNode contains node seen previously, but can't be seen now = leave node
 		#newNode contains node haven't seen previously, but is being seen now = enter node
@@ -48,12 +84,10 @@ class NodeWorker(threading.Thread):
 		self.resultList = resultList
 		self.index = index
 		self.sock = None	
-		self.ip = socket.gethostbyname(socket.gethostname())
 		self.info = info
 
 	def createNodeRequest(self):
 		header = {
-		"srcIP":self.ip,
 		"srcUsername":self.info.get("username", ""),
 		"srcGroup":self.info.get("groupID",""),
 		"desGroup":"",
@@ -74,9 +108,18 @@ class NodeWorker(threading.Thread):
 
 	def run(self):
 		self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.sock.connect((self.addr, 8421))
 		sendMsg = self.createNodeRequest()
+		iAttempt = 1
+		while True:
+			logger.debug(f"On thread #{threading.get_ident()}, connection attempt #{iAttempt}")
+			try:
+				self.sock.connect((self.addr, 8421))
+			except OSError as e:
+				iAttempt += 1
+				continue
+			break
 		self.sock.sendall(sendMsg)
+		logger.debug("Send complete")
 		headerByte = self.sock.recv(30)
 		header = unpackHeader(headerByte)
 		msgLength = header["contentLength"]
@@ -87,8 +130,10 @@ class NodeWorker(threading.Thread):
 			recvLength += len(tempByte)
 			recvByte += tempByte
 		data = json.loads(recvByte.decode("utf-8"))
-		self.resultList[self.index] = data
+		logger.info(f"Recieve node reply {data}")
+		self.resultList[self.index] = (self.addr, data)
 		self.sock.close()
+		
 
 
 logger = logging.getLogger('NodeDiscovery')

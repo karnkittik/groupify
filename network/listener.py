@@ -12,6 +12,7 @@ class Listener(threading.Thread):
 		self.host = "0.0.0.0"
 		self.port = 8421
 		self.net = networkManager
+		self.eventHandler = eventHandler
 		self.lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Avoid bind() exception: OSError: [Errno 48] Address already in use
 		self.lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -19,7 +20,7 @@ class Listener(threading.Thread):
 		self.lsock.bind((self.host, self.port))
 
 
-	def accept_wrapper(sock):
+	def accept_wrapper(self, sock):
 		conn, addr = sock.accept()  # Should be ready to read
 		logger.info(f"accepted connection from {addr}")
 		conn.setblocking(False)
@@ -43,7 +44,7 @@ class Listener(threading.Thread):
 			logger.debug("After select")
 			for key, mask in events:
 				if key.data is None:
-					self.accept_wrapper(key.fileobj, eventListener)
+					self.accept_wrapper(key.fileobj)
 				else:
 					message = key.data
 					try:

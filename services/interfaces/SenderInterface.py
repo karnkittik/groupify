@@ -10,3 +10,9 @@ class SenderInterface(object):
 
     def sendGroupJoinRequest(self, req: Request):
         raise NotImplementedError("Should have implemented this")
+
+    def sendGroupAcknowledgeRequest(self, req: Request):
+        raise NotImplementedError("Should have implemented this")
+
+    def sendGroupDenyRequest(self, req: Request):
+        raise NotImplementedError("Should have implemented this")
