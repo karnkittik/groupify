@@ -14,7 +14,6 @@ from tkinter import ttk
 
 
 
-
 def popup_join_request(name):
     popup = tk.Tk()
     popup.wm_title('Request to group')
@@ -28,23 +27,19 @@ def popup_join_request(name):
     popup.mainloop()
 
 
-class EventHandler(EventHandlerInterface):
-
-    def __init__(self, net):
-        self.net = net
+class MocHandler(EventHandlerInterface):
     def nodeJoin(self, node: Node):
         # TODO: Join adhoc
         logger.info(f"Join node {node}")
-        if (node.groupID != '0') and (GroupService.getGroup(node.groupID) is None):
-            pass
-            # GroupService.addGroup(node.groupID, node.body['group_name'], node.body['max_person'])
-        UserService.addUser(node.username, node.firstname,
-                            node.lastname, node.faculty, node.year, node.groupID)
+
+
+
+
+
 
     def nodeLeave(self, node: Node):
         # TODO: Leave adhoc
         # Need to also remove group
-        UserService.removeUser(node.username)
         logger.info(f"Node left {node}")
 
     def receiveGroupBroadcast(self, b: GroupBroadcast):
@@ -58,8 +53,8 @@ class EventHandler(EventHandlerInterface):
 
     def receiveGroupJoinRequest(self, req: Request):
         logger.info(f"Receive request to joining group {req}")
-        if UserService.isAdmin() and UserService.getProfile()[-1] == req.groupID:
-            popup_join_request(req.fromUsername)
+
+
 
     def receiveJoinOK(self, groupID: int):
         logger.info(f"Confirm joining groupID={groupID}")

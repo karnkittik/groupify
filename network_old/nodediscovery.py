@@ -18,7 +18,7 @@ class NodeDiscovery (threading.Thread):
 		self.info = info
 
 	def getAllNode(self):
-#		logger.info("Retreaving nodes...")
+		logger.info("Retreaving nodes...")
 		url = "http://localhost:1980/telnet/olsrv2info node"
 		res = rq.get(url)
 		if res.status_code != 200:
@@ -26,7 +26,7 @@ class NodeDiscovery (threading.Thread):
 		text = res.content.decode("utf-8").strip()
 		nodes = [[x for x in y.split("\t")] for y in text.split("\n")]
 		res = [x[0] for x in nodes if (x[0] != '' and ':' not in x[0])]
-#		logger.info(f"Found following node: {res}")
+		logger.info(f"Found following node: {res}")
 		return set(res)
 
 	def run(self):

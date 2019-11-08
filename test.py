@@ -3,16 +3,16 @@ from entities.node import *
 from entities.group import *
 from entities.request import *
 from network.NetworkManager import *
-from services.EventHandler import EventHandler
+from services.MocHandler import MocHandler
 
 net = NetworkManager()
 mac = net.getMacAddress()
-ev = EventHandler()
+ev = MocHandler()
 net.addListener(ev)
 # start listener
-# net.startListener()
+#net.startListener()
 # start node discovery service
-# net.startNodeDiscovery()
+#net.startNodeDiscovery()
 
 msg = Message("FFEEDDCCBBAA", "AABBCCDDEEFF", {
               "timestamp": "2019-11-07 10:10:10", "message": "Hello test test"})

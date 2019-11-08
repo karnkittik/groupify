@@ -3,7 +3,7 @@ from entities.message import *
 from entities.node import *
 from entities.group import *
 from entities.request import *
-import threading
+import sys
 import selectors
 import json
 import io
@@ -174,82 +174,6 @@ class ListenerMessage:
 
 	def processData(self):
 		print("processing request...")
-		if self.header["nodeRq"]:
-			self._set_selector_events_mask("w")
-			self.createNodeReply()
-		else:
-			self.close()
-
-
-
-
-
-	def createNodeReply(self):
-		message = self.createNodeReplyMessage()
-		self.response_created = True
-		self._send_buffer += message
-
-
-logger = logging.getLogger('MessageProcessor')
-logger.setLevel(logging.DEBUG)
-ch = logging.StreamHandler()
-formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
-
-
-class UDPListenerMessage (threading.Thread):
-	def __init__(self, data, addr, eventListener, info, packetSet):
-		threading.Thread.__init__(self)
-		self.addr = addr
-		self.eventListener = eventListener
-		self._recv_buffer = data
-		self.header = None
-		self.request = None
-		self.info = info
-		self.packetSet = packetSet
-
-
-	def processHeader(self):
-		hdrlen = 26
-		logger.debug(f"Processing header")
-		if len(self._recv_buffer) >= hdrlen:
-			self.header = unpackHeader(self._recv_buffer[:hdrlen])
-			self._recv_buffer = self._recv_buffer[hdrlen:]
-			for reqhdr in (
-				"srcUsername",
-				"srcGroup",
-				"desGroup",
-				"contentLength",
-				"admin",
-				"member",
-				"broadcast",
-				"groupBroadcast",
-				"memberRq",
-				"leaveRq",
-				"ackRq",
-				"denyRq",
-				"big",
-				"nodeRq",
-				"nodeRep",
-			):
-				if reqhdr not in self.header:
-					raise ValueError(f'Missing required header "{reqhdr}".')
-		logger.info(f"Got header {self.header}")
-
-	def processRequest(self):
-		contentLength = self.header["contentLength"]
-		if not len(self._recv_buffer) >= contentLength:
-			return
-		data = self._recv_buffer[:contentLength]
-		self._recv_buffer = self._recv_buffer[contentLength:]
-		self.request = json.loads(data.decode("utf-8"))
-		logger.debug(f"received request {self.request} from {self.addr}")
-
-
-	def processData(self):
-		print("processing request...")
 		#handling broadcast message
 		if self.header["broadcast"]:
 			if self.header["groupBroadcast"]:
@@ -273,23 +197,30 @@ class UDPListenerMessage (threading.Thread):
 			self.eventListener.receiveJoinOK(self.header["srcGroup"])
 		elif self.header["denyRq"]:
 			self.eventListener.receiveJoinDeny(self.header["srcGroup"])
+		elif self.header["nodeRq"]:
+			self._set_selector_events_mask("w")
+			self.createNodeReply()
 		else:
 			#personal message
 			msg = Message(self.header["srcUsername"], self.info.get("username",""), self.request)
 			self.eventListener.receiveMessage(msg)
+		if not self.header["nodeRq"]:
+			self.close()
 
-	def run(self):
-		packetHash = self._recv_buffer[:32]
-		if packetHash in set:
-			return
-		self.packetHash.add(packetHash)
-		self._recv_buffer = self._recv_buffer[32:]
-		if self.header is None:
-			self.processHeader()
 
-		if self.header:
-			if self.request is None and self.header["contentLength"] > 0:
-				self.processRequest()
 
-		self.processData()
+
+
+	def createNodeReply(self):
+		message = self.createNodeReplyMessage()
+		self.response_created = True
+		self._send_buffer += message
+
+
+logger = logging.getLogger('MessageProcessor')
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 

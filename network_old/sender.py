@@ -3,7 +3,7 @@ from entities.message import Message, BroadcastMessage, GroupMessage
 from entities.node import Node
 from entities.group import GroupBroadcast
 from entities.request import Request
-import threading, time, logging, random
+import threading, time, logging
 import json
 import socket
 
@@ -200,21 +200,22 @@ class SenderWorker(threading.Thread):
 	def __init__(self, addr, msg):
 		threading.Thread.__init__(self)
 		self.addr = addr
-		self.packageHash=bytes.fromhex(format(random.getrandbits(256),"x").zfill(64))
-		self.msg = self.packageHash+msg
+		self.msg = msg
 		self.sock = None
 
-
 	def run(self):
-		self.sock =socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		start = time.time()
-		logger.debug(f"On thread #{threading.get_ident()}, start connection attempt")
+		self.sock =socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		iAttempt = 1
 		while True:
-			iStart = time.time()
-			self.sock.sendto(self.msg,(self.addr, 8421))
-			if time.time() - iStart > 0.3:
-				break
-		logger.debug(f"Send complete using {time.time()-start} seconds")
+			logger.debug(f"On thread #{threading.get_ident()}, connection attempt #{iAttempt}")
+			try:
+				self.sock.connect((self.addr, 8421))
+			except OSError as e:
+				iAttempt += 1
+				continue
+			break
+		self.sock.sendall(self.msg)
+		logger.debug("Send complete")
 		self.sock.close()
 
 logger = logging.getLogger('Sender')

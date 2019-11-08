@@ -38,7 +38,6 @@ class Listener(threading.Thread):
 			if (self.net.isRunning == False):
 				logger.info("Server stop...")
 				self.sel.close()
-				self.sock.close()
 				break
 			logger.debug("Before select")
 			events = self.sel.select(timeout=None)

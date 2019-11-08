@@ -1,6 +1,5 @@
 from network.interface import *
 from network.sender import *
-from network.udpListener import *
 from network.listener import *
 from network.nodediscovery import *
 import sys
@@ -14,7 +13,6 @@ class NetworkManager:
 		self.nodeList = set()
 		self.selfInfo = mocSelf()
 		self.nodeMap = dict()
-		self.packetSet = set()
 		self.reverseMap = dict()
 		self.isRunning = False
 		self.sender = Sender(self.reverseMap, self.selfInfo)
@@ -33,10 +31,8 @@ class NetworkManager:
 
 	def startListener(self):
 		self.listener = Listener(self.eventListener, self)
-		self.udpListener = UDPListener(self.eventListener, self)
 		self.isRunning = True
 		self.listener.start()
-		self.udpListener.start()
 
 	def startNodeDiscovery(self):
 		self.nodeDiscovery = NodeDiscovery(self.nodeList, self.nodeMap, self.reverseMap, self.eventListener, self.sender, self.selfInfo)
@@ -59,12 +55,6 @@ class NetworkManager:
 
 	def sendGroupDenyRequest(self, request):
 		self.sender.sendGroupDenyRequest(request)
-
-	def stop(self):
-		self.isRunning = False
-		self.listener.join()
-		self.udpListener.join()
-		logger.info("Gracefully stop")
 
 	def disconnect(self):
 		self.net.disconnectAdHoc()

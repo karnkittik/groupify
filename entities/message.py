@@ -1,3 +1,4 @@
+
 class Message:
     def __init__(self, fromUsername, toUsername, body=dict()):
         self.fromUsername = fromUsername
