@@ -1,6 +1,6 @@
 class GroupBroadcast:
-    def __init__(self, username, groupID, role, body=None):
-        self.username = username
-        self.groupID = groupID
-        self.role = role
+    def __init__(self, body=None):
+        self.username = body['username']
+        self.groupID = body['groupID']
+        self.role = body['role']
         self.body = body

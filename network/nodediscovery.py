@@ -4,6 +4,7 @@ import requests as rq
 import socket, json
 from network.utility import *
 from services.EventHandler import *
+from services.user import UserService
 
 
 class NodeDiscovery (threading.Thread):
@@ -36,21 +37,22 @@ class NodeDiscovery (threading.Thread):
 			self.nodeList = nodes
 #			logger.debug(f"Add node: {addedNode}, deleted node: {deletedNode}")
 #			logger.debug(f"Len node {len(nodes)}, add node {len(addedNode)}, deleted node {len(deletedNode)}")
-			nodeInfo = self.probeNode(addedNode)
+			""" nodeInfo = self.probeNode(addedNode)
 			for (ip, info) in nodeInfo:
 				createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["groupID"],info)
 				self.eventListener.nodeJoin(createdNode)
 				self.nodeMap[ip] = info
-				self.reverseMap[info["username"]] = ip
+				self.reverseMap[info["username"]] = ip """
 			for ip in deletedNode:
-				info = self.nodeMap.get(ip)
-				createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["groupID"],info)
-				self.eventListener.nodeLeave(createdNode)
-				self.nodeMap.pop(ip)
-				self.reverseMap.pop(info["username"])
-			self.info = mocSelf()
-			#self.sender.sendGroupBroadcast()
-			time.sleep(20)
+				if ip in self.nodeMap:
+					info = self.nodeMap.get(ip)
+					createdNode = Node(ip,info["username"],info["firstname"],info["lastname"],info["faculty"],info["year"],info["group_id"],info)
+					self.eventListener.nodeLeave(createdNode)
+					self.nodeMap.pop(ip)
+					self.reverseMap.pop(info["username"])
+			self.info = UserService.infoBroadcast()
+			self.sender.sendGroupBroadcast()
+			time.sleep(10)
 
 	def probeNode(self, nodeList):
 		num = len(nodeList)

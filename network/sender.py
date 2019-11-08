@@ -6,6 +6,7 @@ from entities.request import Request
 import threading, time, logging, random
 import json
 import socket
+from services.user import UserService
 
 class Sender:
 

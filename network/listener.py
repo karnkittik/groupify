@@ -12,6 +12,7 @@ class Listener(threading.Thread):
 		self.host = "0.0.0.0"
 		self.port = 8421
 		self.net = networkManager
+		self.info = networkManager.selfInfo
 		self.eventHandler = eventHandler
 		self.lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Avoid bind() exception: OSError: [Errno 48] Address already in use
@@ -24,7 +25,7 @@ class Listener(threading.Thread):
 		conn, addr = sock.accept()  # Should be ready to read
 		logger.info(f"accepted connection from {addr}")
 		conn.setblocking(False)
-		message = ListenerMessage(self.sel, conn, addr, self.eventHandler)
+		message = ListenerMessage(self.sel, conn, addr, self.eventHandler, self.info)
 		self.sel.register(conn, selectors.EVENT_READ, data=message)
 
 

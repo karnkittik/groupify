@@ -1,10 +1,10 @@
 class Node:
-    def __init__(self, ip, username, firstname, lastname, faculty, year, groupID, body=dict()):
+    def __init__(self, ip, body=dict()):
         self.ip = ip
-        self.username = username
-        self.firstname = firstname
-        self.lastname = lastname
-        self.faculty = faculty
-        self.year = year
-        self.groupID = groupID
+        self.username = body['username']
+        self.firstname = body['firstname']
+        self.lastname = body['lastname']
+        self.faculty = body['faculty']
+        self.year = body['year']
+        self.groupID = body['groupID']
         self.body = body

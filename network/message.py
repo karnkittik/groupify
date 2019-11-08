@@ -11,7 +11,7 @@ import struct
 import socket
 
 class ListenerMessage:
-	def __init__(self, selector, sock, addr, eventListener):
+	def __init__(self, selector, sock, addr, eventListener, info):
 		self.selector = selector
 		self.sock = sock
 		self.addr = addr
@@ -19,7 +19,7 @@ class ListenerMessage:
 		self._recv_buffer = b""
 		self._send_buffer = b""
 		self.header = None
-		self.info = mocSelf()
+		self.info = info
 		self.request = None
 		self.response_created = False
 
@@ -200,7 +200,7 @@ logger.addHandler(ch)
 
 
 class UDPListenerMessage (threading.Thread):
-	def __init__(self, data, addr, eventListener, info, packetSet):
+	def __init__(self, data, addr, eventListener, info, packetSet, networkManager):
 		threading.Thread.__init__(self)
 		self.addr = addr
 		self.eventListener = eventListener
@@ -209,6 +209,8 @@ class UDPListenerMessage (threading.Thread):
 		self.request = None
 		self.info = info
 		self.packetSet = packetSet
+		self.nodeMap = networkManager.nodeMap
+		self.reverseMap = networkManager.reverseMap
 
 
 	def processHeader(self):
@@ -264,7 +266,13 @@ class UDPListenerMessage (threading.Thread):
 					req = Request(self.header["srcUsername"], self.header["desGroup"])
 					self.eventListener.receiveGroupJoinRequest(req)
 			elif self.header["nodeRep"]:
-				groupInfo = GroupBroadcast(self.request["username"],self.request["groupID"],self.request["role"], self.request)
+				groupInfo = GroupBroadcast(self.request)
+				if self.addr not in self.nodeMap:
+#This is new node
+					createdNode = Node(self.addr,self.request)
+					self.eventListener.nodeJoin(createdNode)
+					self.nodeMap[self.addr] = self.request
+					self.reverseMap[self.request["username"]] = self.addr
 				self.eventListener.receiveGroupBroadcast(groupInfo)
 			else:
 				msg = BroadcastMessage(self.header["srcUsername"], self.request)
