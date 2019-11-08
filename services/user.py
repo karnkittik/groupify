@@ -23,19 +23,29 @@ class UserService:
 
     @staticmethod
     def infoBroadcast() -> dict:
-        cur_user = UserService.getProfile()
+        user_info = DB.execute(
+            'SELECT `user`.username, `user`.firstname, `user`.lastname, `user`.faculty `user`.year, `user`.group_id, `self`.is_admin, `self`.is_member` FROM `user` INNER JOIN `self` ON `user`.username=`self`.username')
+        role = 'none'
+        if user_info[6]:  # isAdmin
+            role = 'admin'
+        elif user_info[7]:
+            role = 'member'
         info = {
-            'username': cur_user[0],
-            'firstname': cur_user[1],
-            'lastname': cur_user[2],
-            'faculty': cur_user[3],
-            'group_id': cur_user[4],
+            'username': user_info[0],
+            'role': role,
+            'firstname': user_info[1],
+            'lastname': user_info[2],
+            'faculty': user_info[3],
+            'year': user_info[4],
+            'isAdmin': user_info[6],
+            'isMember': user_info[7],
+            'group_id': user_info[5],
             'group_name': '',
             'max_person': 0
         }
-        if (cur_user[4] != '0'):
+        if (user_info[5] != '0'):
             group_info = DB.execute(
-                'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (cur_user[4],))
+                'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (user_info[4],))
             info['group_name'] = group_info[1]
             info['max_person'] = group_info[2]
         return info
