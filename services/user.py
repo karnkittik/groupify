@@ -41,7 +41,7 @@ class UserService:
             'year': user_info[4],
             'isAdmin': user_info[6],
             'isMember': user_info[7],
-            'group_id': user_info[5],
+            'groupID': user_info[5],
             'group_name': '',
             'max_person': 0
         }

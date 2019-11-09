@@ -4,7 +4,7 @@ CREATE TABLE `group` (
   max_person integer
 );
 
-INSERT INTO `group`(group_id, group_name, max_person) VALUES ("0", "", NULL);
+INSERT INTO `group`(group_id, group_name, max_person) VALUES ("0", "", 0);
 
 CREATE TABLE `user` (
   username varchar(10) PRIMARY KEY,
