@@ -13,8 +13,6 @@ import tkinter as tk
 from tkinter import ttk
 
 
-
-
 def popup_join_request(name):
     popup = tk.Tk()
     popup.wm_title('Request to group')
@@ -32,12 +30,13 @@ class EventHandler(EventHandlerInterface):
 
     def __init__(self, net):
         self.net = net
+
     def nodeJoin(self, node: Node):
         # TODO: Join adhoc
         logger.info(f"Join node {node}")
         if (node.groupID != '0') and (GroupService.getGroup(node.groupID) is None):
             pass
-            # GroupService.addGroup(node.groupID, node.body['group_name'], node.body['max_person'])
+            # GroupService.addGroup(node.groupID, node.group_name, node.max_person)
         UserService.addUser(node.username, node.firstname,
                             node.lastname, node.faculty, node.year, node.groupID)
 
