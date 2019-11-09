@@ -21,3 +21,14 @@ sudo ./olsrd2_static wlp2s0 lo
 ```
 sudo python3 ./main.py
 ```
+
+## Config AdHoc
+```
+sudo service network-manager stop
+sudo ip link set wlp2s0 down
+sudo iwconfig wlp2s0 mode ad-hoc
+sudo iwconfig wlp2s0 channel 4
+sudo iwconfig wlp2s0 essis 'CUWIRELESS'
+
+sudo ip link set wlp2s0 up
+```

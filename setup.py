@@ -9,9 +9,9 @@ from network.NetworkManager import *
 from services.EventHandler import EventHandler
 
 net = NetworkManager()
-net.connect()
+# net.connect()
 mac = net.getMacAddress()
-ev = EventHandler()
+ev = EventHandler(net)
 net.addListener(ev)
 # start listener
 net.startListener()

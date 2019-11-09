@@ -7,4 +7,6 @@ class Node:
         self.faculty = body['faculty']
         self.year = body['year']
         self.groupID = body['groupID']
+        self.groupName = body['group_name']
+        self.maxPerson = body['max_person']
         self.body = body
