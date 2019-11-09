@@ -1,4 +1,3 @@
-
 CREATE TABLE `group` (
   group_id varchar(10) PRIMARY KEY,
   group_name varchar(20),

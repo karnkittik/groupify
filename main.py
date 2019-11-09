@@ -16,7 +16,7 @@ UserService.initMe(mac_address, '', '', '', 1)
 # UserService.addUser('mac address2', 'Pawin', 'Piemthai', 'Eng', 4)
 # UserService.addUser('mac address3', 'Nathawan', 'Siripokasupkul', 'Eng', 4)
 
-print(UserService.getAvailableUser())
+# print(UserService.getAvailableUser())
 
 
 # Set up UI

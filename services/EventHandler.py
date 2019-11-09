@@ -1,6 +1,7 @@
 import logging
 from database.database import DB
 from services.interfaces.EventHandlerInterface import EventHandlerInterface
+
 from entities.node import Node
 from entities.message import *
 from entities.request import *
@@ -9,21 +10,8 @@ from entities.group import *
 from services.user import UserService
 from services.group import GroupService
 
-import tkinter as tk
-from tkinter import ttk
-
-
-def popup_join_request(name):
-    popup = tk.Tk()
-    popup.wm_title('Request to group')
-    label = ttk.Label(
-        popup, text=name + ' would like to join your group. Accept?', font=("Helvetica", 10))
-    label.pack(side='top', fill='x', pady=10)
-    confirmBtn = ttk.Button(popup, text='Accept', command=popup.destroy)
-    cancelBtn = ttk.Button(popup, text='Deny', command=popup.destroy)
-    confirmBtn.pack()
-    cancelBtn.pack()
-    popup.mainloop()
+from GUI_ALL.ui.JoinRequest import JoinRequest
+from tkinter import messagebox
 
 
 class EventHandler(EventHandlerInterface):
@@ -32,17 +20,14 @@ class EventHandler(EventHandlerInterface):
         self.net = net
 
     def nodeJoin(self, node: Node):
-        # TODO: Join adhoc
         logger.info(f"Join node {node}")
         print(node)
         if (node.groupID != '0') and (GroupService.getGroup(node.groupID) is None):
-            pass
             GroupService.addGroup(node.groupID, node.groupName, node.maxPerson)
         UserService.addUser(node.username, node.firstname,
                             node.lastname, node.faculty, node.year, node.groupID)
 
     def nodeLeave(self, node: Node):
-        # TODO: Leave adhoc
         # Need to also remove group
         UserService.removeUser(node.username)
         logger.info(f"Node left {node}")
@@ -59,13 +44,18 @@ class EventHandler(EventHandlerInterface):
     def receiveGroupJoinRequest(self, req: Request):
         logger.info(f"Receive request to joining group {req}")
         if UserService.isAdmin() and UserService.getProfile()[-1] == req.groupID:
-            popup_join_request(req.fromUsername)
+            JoinRequest(req)
 
     def receiveJoinOK(self, groupID: int):
         logger.info(f"Confirm joining groupID={groupID}")
+        username = UserService.getProfile()[0]
+        UserService.updateGroup(username, groupID)
+        messagebox.showinfo('Accept request', 'Joined group ' + str(groupID))
 
     def receiveJoinDeny(self, groupID: int):
         logger.info(f"Deny joining groupID={groupID}")
+        messagebox.showerror('Deny request', str(
+            groupID) + ' denied your request!')
 
     def receiveMessage(self, msg: Message):
         logger.info(f"Receive message {msg}")

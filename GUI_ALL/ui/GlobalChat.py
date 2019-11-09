@@ -3,6 +3,8 @@ import setup
 from GUI_ALL.data_class import *
 from GUI_ALL.data_class_eiei import *
 
+from services.broadcastMessage import BroadcastMessage
+
 
 class GlobalChat(Frame):
     def __init__(self, parent, *args, **kwargs):
@@ -12,7 +14,8 @@ class GlobalChat(Frame):
         self.header = Label(self, text="Global Chat")
         self.header.grid(row=0)
 
-        self.chat = Text(self, width=25, height=10)
+        # self.chat = Text(self, width=25, height=10)
+        self.chat = Listbox(self)
         self.chat.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
         scrollb = Scrollbar(self, command=self.chat.yview)
@@ -28,13 +31,16 @@ class GlobalChat(Frame):
         self.sent.grid(row=2, column=1, padx=10)
 
     def sent_msg(self):
-        msg = message(setup.current_user.first_name, self.msg_field.get())
+        BroadcastMessage.send(self.msg_field.get())
+        self.var1.set('')
+        self.refresh()
 
-        self.update(msg)
-
-    def update(self, msg):
-        self.chat.config(state="normal")
-        self.chat.insert(INSERT, msg.display_msg())
-        self.chat.config(state="disabled")
-        self.chat.see("end")
-        self.var1.set("")
+    def refresh(self):
+        self.chat.delete(0, END)
+        messages = BroadcastMessage.getAll()
+        for (firstname, time, message) in messages:
+            print(time)
+            dt = datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
+            print(dt)
+            self.chat.insert(END, firstname + ': ' +
+                             message + '(' + dt.strftime('%H:%M') + ')')
