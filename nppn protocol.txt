@@ -1,5 +1,6 @@
 #Draft of the nppn protocol
-Header specification (26 bytes):
+Header specification (58 bytes):
+packet hash | 32 bytes  | 256 random bits used for filtering repeated packets
 src Username| 6 bytes|Mac address of sender
 src Group:8 bytes|Group Id of sender (generated from mac address of group admin) 0 when user is not associated with any group
 des Group| 8 bytes| group ID of destination (use when sending member request or leave request)

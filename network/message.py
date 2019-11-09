@@ -288,9 +288,9 @@ class UDPListenerMessage (threading.Thread):
 
 	def run(self):
 		packetHash = self._recv_buffer[:32]
-		if packetHash in set:
+		if packetHash in self.packetSet:
 			return
-		self.packetHash.add(packetHash)
+		self.packetSet.add(packetHash)
 		self._recv_buffer = self._recv_buffer[32:]
 		if self.header is None:
 			self.processHeader()
