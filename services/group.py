@@ -32,6 +32,7 @@ class GroupService:
 
     @staticmethod
     def addGroup(groupID, groupName, maxPerson=4):
+        groupID = groupID.replace(':', '')
         DB.execute('INSERT INTO `group`(group_id, group_name, max_person) VALUES (?,?,?)',
                    (groupID, groupName, maxPerson))
 

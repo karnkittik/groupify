@@ -5,7 +5,8 @@ from database.database import DB
 class UserService:
 
     @staticmethod
-    def initMe(username, firstname, lastname, faculty, year):
+    def initMe(username: str, firstname, lastname, faculty, year):
+        username = username.replace(':', '')
         DB.executemultiplesql([
             ('REPLACE INTO `user`(username, firstname, lastname, faculty, year) VALUES(?,?,?,?,?)',
              (username, firstname, lastname, faculty, year,)),
@@ -75,6 +76,7 @@ class UserService:
 
     @staticmethod
     def addUser(username, firstname, lastname, faculty, year, group_id='0'):
+        username = username.replace(':', '')
         DB.execute('REPLACE INTO `user`(username, firstname, lastname, faculty, year, group_id) VALUES (?,?,?,?,?,?)',
                    (username, firstname, lastname, faculty, year, group_id))
 
@@ -84,6 +86,7 @@ class UserService:
 
     @staticmethod
     def updateGroup(username, newGroupID):
+        username = username.replace(':', '')
         curr_username = UserService.getProfile()[0]
         if curr_username == username:
             DB.executemultiplesql([

@@ -30,10 +30,12 @@ class GlobalChat(Frame):
         self.sent = Button(self, text="Sent", width=5, command=self.sent_msg)
         self.sent.grid(row=2, column=1, padx=10)
 
+        self.refresh()
+
     def sent_msg(self):
         BroadcastMessage.send(self.msg_field.get())
         self.var1.set('')
-        self.refresh()
+        # self.refresh()
 
     def refresh(self):
         self.chat.delete(0, END)
@@ -44,3 +46,4 @@ class GlobalChat(Frame):
             print(dt)
             self.chat.insert(END, firstname + ': ' +
                              message + '(' + dt.strftime('%H:%M') + ')')
+        self.chat.after(1000, self.refresh)

@@ -37,6 +37,7 @@ class NodeDiscovery (threading.Thread):
         while True:
             nodes = self.getAllNode()
             addedNode, deletedNode = self.diffNode(nodes)
+            self.info = UserService.infoBroadcast()
             self.nodeList = nodes
 #			logger.debug(f"Add node: {addedNode}, deleted node: {deletedNode}")
 #			logger.debug(f"Len node {len(nodes)}, add node {len(addedNode)}, deleted node {len(deletedNode)}")
@@ -56,7 +57,6 @@ class NodeDiscovery (threading.Thread):
                     self.eventListener.nodeLeave(createdNode)
                     self.nodeMap.pop(ip)
                     self.reverseMap.pop(info["username"])
-            self.info = UserService.infoBroadcast()
             self.sender.sendGroupBroadcast()
             time.sleep(10)
 
