@@ -82,7 +82,7 @@ class UserService:
 
     @staticmethod
     def removeUser(username):
-        DB.execute('DELETE * FROM `user` WHERE username=?', (username,))
+        DB.execute('DELETE FROM `user` WHERE username=?', (username,))
 
     @staticmethod
     def updateGroup(username, newGroupID):
