@@ -72,7 +72,8 @@ class GroupList:
             self.inside_frame3, text="Check Member", command=self.selected_node_update)
         self.sel_btn.pack(side=LEFT)
 
-        self.req_btn = Button(self.inside_frame3, text="request to join")
+        self.req_btn = Button(
+            self.inside_frame3, text="request to join", command=self.request_join_group)
         self.req_btn.pack(side=LEFT)
 
     def add_group_tolist(self):
@@ -108,3 +109,7 @@ class GroupList:
         for (username, firstname, lastname, faculty, year, group_id) in members:
             self.selected_node.insert(END, faculty + '#' +
                                       str(year) + ' ' + firstname + ' ' + lastname)
+
+    def request_join_group(self):
+        sel_index = self.list_box.index(ANCHOR)
+        GroupService.requestJoinGroup(self.group_id[sel_index])

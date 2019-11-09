@@ -1,3 +1,4 @@
+import setup
 from database.database import DB
 from datetime import datetime
 
@@ -15,5 +16,11 @@ class BroadcastMessage:
     @staticmethod
     def send(msg):
         username = UserService.getProfile()[0]
+        setup.net.sendMessageBroadcast(msg)
         DB.execute('INSERT INTO message_broadcast(from_username, time, message) VALUES (?,?,?)',
                    (username, datetime.utcnow(), msg))
+
+    @staticmethod
+    def receive(username, time, msg):
+        DB.execute(
+            'INSERT INTO message_broadcast(from_username, time, message) VALUES (?,?,?)', (username, time, msg))

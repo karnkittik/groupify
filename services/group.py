@@ -1,5 +1,8 @@
+import setup
 from typing import Union
 from database.database import DB
+
+from entities.request import Request
 
 from services.user import UserService
 
@@ -41,3 +44,9 @@ class GroupService:
         result = DB.execute(
             'SELECT * FROM `user` WHERE group_id=?', (groupID,))
         return result.fetchall()
+
+    @staticmethod
+    def requestJoinGroup(groupID):
+        username = UserService.getProfile()[0]
+        req = Request(username, groupID)
+        setup.net.sendGroupJoinRequest(req)

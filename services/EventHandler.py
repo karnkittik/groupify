@@ -9,6 +9,8 @@ from entities.group import *
 
 from services.user import UserService
 from services.group import GroupService
+from services.broadcastMessage import BroadcastMessage
+from services.groupMessage import GroupMessage
 
 from GUI_ALL.ui.JoinRequest import JoinRequest
 from tkinter import messagebox
@@ -37,9 +39,12 @@ class EventHandler(EventHandlerInterface):
 
     def receiveMessageBroadcast(self, msg: BroadcastMessage):
         logger.info(f"Receive message broadcast {msg}")
+        BroadcastMessage.receive(msg.fromUsername, msg.timestamp, msg.message)
 
     def receiveMessageGroup(self, msg: GroupMessage):
         logger.info(f"Receive group message {msg}")
+        GroupMessage.receive(
+            msg.fromUsername, msg.groupID, msg.body.get('timestamp', ''), msg.body.get('message', ''))
 
     def receiveGroupJoinRequest(self, req: Request):
         logger.info(f"Receive request to joining group {req}")
