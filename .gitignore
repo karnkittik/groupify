@@ -1,3 +1,4 @@
 *.pic
 __pycache__/
 groupify.db
+adhoc-config.sh

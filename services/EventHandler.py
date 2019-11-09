@@ -34,9 +34,10 @@ class EventHandler(EventHandlerInterface):
     def nodeJoin(self, node: Node):
         # TODO: Join adhoc
         logger.info(f"Join node {node}")
+        print(node)
         if (node.groupID != '0') and (GroupService.getGroup(node.groupID) is None):
             pass
-            # GroupService.addGroup(node.groupID, node.group_name, node.max_person)
+            GroupService.addGroup(node.groupID, node.groupName, node.maxPerson)
         UserService.addUser(node.username, node.firstname,
                             node.lastname, node.faculty, node.year, node.groupID)
 

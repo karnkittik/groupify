@@ -7,14 +7,14 @@ from services.group import GroupService
 
 
 # get mac address from pawin
-mac_address = 'mac address'
+mac_address = setup.mac
 
 DB.destroy_table()
 DB.init_table()
 
 UserService.initMe(mac_address, '', '', '', 1)
-UserService.addUser('mac address2', 'Pawin', 'Piemthai', 'Eng', 4)
-UserService.addUser('mac address3', 'Nathawan', 'Siripokasupkul', 'Eng', 4)
+# UserService.addUser('mac address2', 'Pawin', 'Piemthai', 'Eng', 4)
+# UserService.addUser('mac address3', 'Nathawan', 'Siripokasupkul', 'Eng', 4)
 
 print(UserService.getAvailableUser())
 
