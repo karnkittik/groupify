@@ -24,8 +24,9 @@ class UserService:
     @staticmethod
     def infoBroadcast() -> dict:
         user_info = DB.execute(
-            'SELECT `user`.username, `user`.firstname, `user`.lastname, `user`.faculty `user`.year, `user`.group_id, `self`.is_admin, `self`.is_member` FROM `user` INNER JOIN `self` ON `user`.username=`self`.username')
+            'SELECT `user`.username, `user`.firstname, `user`.lastname, `user`.faculty, `user`.year, `user`.group_id, `self`.is_admin, `self`.is_member FROM `user` INNER JOIN `self` ON `user`.username=`self`.username').fetchone()
         role = 'none'
+        print(user_info)
         if user_info[6]:  # isAdmin
             role = 'admin'
         elif user_info[7]:

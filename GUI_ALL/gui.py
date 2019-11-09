@@ -13,11 +13,17 @@ from GUI_ALL.ui.GroupList import GroupList
 from GUI_ALL.data_class import *
 from GUI_ALL.data_class_eiei import *
 
+root = Tk()
+root.title("Groupify")
+
+
 def closeUI():
+    global root
     print('Closing the app')
     print(setup.net)
-    setup.net.disconnect()
     root.destroy()
+    # setup.net.disconnect()
+
 
 def initUI():
     global all_group
@@ -36,8 +42,8 @@ def initUI():
     msg_queue = []
 
     # Set up Main window
-    root = Tk()
-    root.title("Groupify")
+    # root = Tk()
+    # root.title("Groupify")
 
     # user information
     UserInformation(root).pack()
