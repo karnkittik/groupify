@@ -1,12 +1,17 @@
 from GUI_ALL.data_class import *
 from GUI_ALL.data_class_eiei import *
 
+from database.database import DB
+
 from entities.message import *
 from entities.node import *
 from entities.group import *
 from entities.request import *
 from network.NetworkManager import *
 from services.EventHandler import EventHandler
+
+DB.destroy_table()
+DB.init_table()
 
 net = NetworkManager()
 # net.connect()

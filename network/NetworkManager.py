@@ -12,6 +12,7 @@ class NetworkManager:
 
     def __init__(self):
         self.net = NetworkInterface()
+        UserService.initMe(self.net.getInterfaceMac(), '', '', '', 1)
         self.macAddress = self.net.getInterfaceMac()
         self.nodeList = set()
         # self.selfInfo = mocSelf()
