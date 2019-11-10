@@ -36,6 +36,9 @@ class EventHandler(EventHandlerInterface):
 
     def receiveGroupBroadcast(self, b: GroupBroadcast):
         logger.info(f"Receive group broadcast {b}")
+        print('Group broadcast body: ', b.body)
+        UserService.addUser(b.username, b.body.get('firstname', 'test'), b.body.get(
+            'lastname', 'Test L'), b.body.get('faculty', 'test faculty'), b.body.get('year', 4), b.groupID)
 
     def receiveMessageBroadcast(self, msg: BroadcastMessage):
         logger.info(f"Receive message broadcast {msg}")
