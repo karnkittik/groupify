@@ -251,7 +251,7 @@ class UDPListenerMessage (threading.Thread):
         self.info = UserService.infoBroadcast()
         if self.header["broadcast"]:
             if self.header["groupBroadcast"]:
-                if self.info.get("groupID", "") == self.header["srcGroup"]:
+                if self.info.get("groupID", "") == self.header["srcGroup"][4:]:
                     msg = GroupMessage(
                         self.header["srcUsername"], self.header["srcGroup"], self.request)
                     self.eventListener.receiveMessageGroup(msg)
@@ -280,9 +280,9 @@ class UDPListenerMessage (threading.Thread):
                     self.header["srcUsername"], self.request)
                 self.eventListener.receiveMessageBroadcast(msg)
         elif self.header["ackRq"]:
-            self.eventListener.receiveJoinOK(self.header["srcGroup"])
+            self.eventListener.receiveJoinOK(self.header["srcGroup"][4:])
         elif self.header["denyRq"]:
-            self.eventListener.receiveJoinDeny(self.header["srcGroup"])
+            self.eventListener.receiveJoinDeny(self.header["srcGroup"][4:])
         else:
             # personal message
             msg = Message(self.header["srcUsername"], self.info.get(

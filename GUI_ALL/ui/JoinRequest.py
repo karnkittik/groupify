@@ -33,6 +33,7 @@ def acceptRequest(popup, req: Request):
 
 
 def denyRequest(popup, req: Request):
+    popup.destroy()
     req = Request(req.fromUsername, req.groupID, {
         'message': 'Deny join group requeset'
     })
