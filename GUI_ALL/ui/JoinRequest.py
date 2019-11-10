@@ -16,7 +16,7 @@ def JoinRequest(req: Request):
     confirmBtn = ttk.Button(popup, text='Accept',
                             command=lambda: acceptRequest(popup, req))
     cancelBtn = ttk.Button(
-        popup, text='Deny', command=lambda: denyRequest(popup))
+        popup, text='Deny', command=lambda: denyRequest(popup, req))
     confirmBtn.pack()
     cancelBtn.pack()
     popup.mainloop()
@@ -24,8 +24,7 @@ def JoinRequest(req: Request):
 
 def acceptRequest(popup, req: Request):
     popup.destroy()
-    info = UserService.getProfile()
-    ackReq = Request(info[0], info[-1], {
+    ackReq = Request(req.fromUsername, req.groupID, {
         'message': 'Accept join group request'
     })
     print('Sending Group Acknowledge Request')
@@ -33,10 +32,8 @@ def acceptRequest(popup, req: Request):
     UserService.updateGroup(req.fromUsername, req.groupID)
 
 
-def denyRequest(popup):
-    popup.destroy()
-    info = UserService.getProfile()
-    req = Request(info[0], info[-1], {
+def denyRequest(popup, req: Request):
+    req = Request(req.fromUsername, req.groupID, {
         'message': 'Deny join group requeset'
     })
     print('Sending Group Deny Request')
