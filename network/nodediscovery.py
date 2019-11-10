@@ -58,8 +58,6 @@ class NodeDiscovery (threading.Thread):
                     self.reverseMap.pop(info["username"])
             self.info = UserService.infoBroadcast()
             self.sender.info = self.info
-            print('NodeDiscovery info: ', self.info)
-            print('UserService info: ', UserService.infoBroadcast())
             self.sender.sendGroupBroadcast()
             time.sleep(10)
 

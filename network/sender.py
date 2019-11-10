@@ -216,7 +216,13 @@ class SenderWorker(threading.Thread):
             f"On thread #{threading.get_ident()}, start connection attempt")
         while True:
             iStart = time.time()
-            self.sock.sendto(self.msg, (self.addr, 8421))
+            if type(self.msg) not in [str, bytearray, bytes]:
+                print('Sender worker msg: ', self.msg)
+            if type(self.addr) not in [str, bytearray, bytes]:
+                print('SenderWorker addr: ', self.addr,
+                      'type: ', type(self.addr))
+                self.addr = self.addr[0]
+            self.sock.sendto(self.msg, (self.addr, 8421,))
             if time.time() - iStart > 0.3:
                 break
         logger.debug(f"Send complete using {time.time()-start} seconds")

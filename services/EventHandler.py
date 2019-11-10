@@ -37,6 +37,9 @@ class EventHandler(EventHandlerInterface):
     def receiveGroupBroadcast(self, b: GroupBroadcast):
         logger.info(f"Receive group broadcast {b}")
         print('Group broadcast body: ', b.body)
+        if (b.body.get('groupID') != '0') and (GroupService.getGroup(b.body.get('groupID')) is None):
+            GroupService.addGroup(b.body.get('groupID'), b.body.get(
+                'group_name'), b.body.get('max_person'))
         UserService.addUser(b.username, b.body.get('firstname', 'test'), b.body.get(
             'lastname', 'Test L'), b.body.get('faculty', 'test faculty'), b.body.get('year', 4), b.groupID)
 
