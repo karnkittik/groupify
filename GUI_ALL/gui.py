@@ -8,6 +8,7 @@ from GUI_ALL.ui.GlobalChat import GlobalChat
 from GUI_ALL.ui.PersonalChat import PersonalChat
 from GUI_ALL.ui.FriendList import FriendList
 from GUI_ALL.ui.GroupList import GroupList
+from GUI_ALL.ui.GroupChat import GroupChat
 
 
 from GUI_ALL.data_class import *
@@ -64,6 +65,9 @@ def initUI():
     #global chat
     global_chat = GlobalChat(side_frame)
     global_chat.pack(side=LEFT, pady=20, padx=20)
+
+    group_chat = GroupChat(side_frame)
+    group_chat.pack(side=LEFT, pady=20, padx=2)
 
     # personal pack
     # PersonalChat(side_frame).pack(side=RIGHT, pady=20, padx=20)

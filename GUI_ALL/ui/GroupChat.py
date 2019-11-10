@@ -4,15 +4,15 @@ import setup
 from GUI_ALL.data_class import *
 from GUI_ALL.data_class_eiei import *
 
-from services.broadcastMessage import BroadcastMessage
+from services.groupMessage import GroupMessage
 
 
-class GlobalChat(Frame):
+class GroupChat(Frame):
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, *args, **kwargs)
         self.parent = parent
 
-        self.header = Label(self, text="Global Chat")
+        self.header = Label(self, text="Group Chat")
         self.header.grid(row=0)
 
         # self.chat = Text(self, width=25, height=10)
@@ -34,13 +34,13 @@ class GlobalChat(Frame):
         self.refresh()
 
     def sent_msg(self):
-        BroadcastMessage.send(self.msg_field.get())
+        GroupMessage.send(self.msg_field.get())
         self.var1.set('')
         # self.refresh()
 
     def refresh(self):
         self.chat.delete(0, END)
-        messages = BroadcastMessage.getAll()
+        messages = GroupMessage.getAll()
         for (firstname, time, message) in messages:
             fromZone = tz.tzutc()
             toZone = tz.tzlocal()

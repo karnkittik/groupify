@@ -2,6 +2,8 @@ import setup
 from database.database import DB
 from datetime import datetime
 
+from entities.message import GroupMessage as GroupMessageEntity
+
 from services.user import UserService
 
 
@@ -19,9 +21,14 @@ class GroupMessage:
         username = user[0]
         groupID = user[-1]
         if(groupID != '0'):
-            setup.net.sendMessageGroup(msg)
+            timestamp = datetime.utcnow()
+            msgEntity = GroupMessageEntity(username, groupID, {
+                'timestamp': str(timestamp),
+                'message': msg
+            })
+            setup.net.sendMessageGroup(msgEntity)
             DB.execute('INSERT INTO message_group(from_username, group_id, time, message) VALUES (?,?,?,?)',
-                       (username, groupID, datetime.utcnow(), msg))
+                       (username, groupID, str(timestamp), msg))
 
     @staticmethod
     def receive(username, groupID, time, msg):
