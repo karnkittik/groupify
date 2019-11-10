@@ -50,7 +50,7 @@ class EventHandler(EventHandlerInterface):
     def receiveMessageGroup(self, msg: GroupMessage):
         logger.info(f"Receive group message {msg}")
         GroupMessage.receive(
-            msg.fromUsername, msg.groupID, msg.body.get('timestamp', ''), msg.body.get('message', ''))
+            msg.fromUsername, msg.groupID, msg.timestamp, msg.message)
 
     def receiveGroupJoinRequest(self, req: Request):
         logger.info(f"Receive request to joining group {req}")
