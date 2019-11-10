@@ -18,8 +18,8 @@ CREATE TABLE `user` (
 
 CREATE TABLE self (
   username varchar(10),
-  is_admin boolean DEFAULT false,
-  is_member boolean DEFAULT false,
+  is_admin boolean DEFAULT 0,
+  is_member boolean DEFAULT 0,
   FOREIGN KEY (username) REFERENCES `user`(username) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

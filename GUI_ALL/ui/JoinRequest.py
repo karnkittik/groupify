@@ -28,6 +28,7 @@ def acceptRequest(popup, req: Request):
     ackReq = Request(info[0], info[-1], {
         'message': 'Accept join group request'
     })
+    print('Sending Group Acknowledge Request')
     setup.net.sendGroupAcknowledgeRequest(ackReq)
     UserService.updateGroup(req.fromUsername, req.groupID)
 
@@ -38,4 +39,5 @@ def denyRequest(popup):
     req = Request(info[0], info[-1], {
         'message': 'Deny join group requeset'
     })
+    print('Sending Group Deny Request')
     setup.net.sendGroupDenyRequest(req)

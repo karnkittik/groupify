@@ -27,9 +27,9 @@ class UserService:
         user_info = DB.execute(
             'SELECT `user`.username, `user`.firstname, `user`.lastname, `user`.faculty, `user`.year, `user`.group_id, `self`.is_admin, `self`.is_member FROM `user` INNER JOIN `self` ON `user`.username=`self`.username').fetchone()
         role = 'none'
-        if user_info[6] == 'true':  # isAdmin
+        if user_info[6] == 1:  # isAdmin
             role = 'admin'
-        elif user_info[7] == 'true':
+        elif user_info[7] == 1:
             role = 'member'
         info = {
             'username': user_info[0],
