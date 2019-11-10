@@ -8,6 +8,7 @@ import json
 from network.utility import *
 from services.EventHandler import *
 from services.user import UserService
+import random
 
 
 class NodeDiscovery (threading.Thread):
@@ -59,7 +60,7 @@ class NodeDiscovery (threading.Thread):
             self.info = UserService.infoBroadcast()
             self.sender.info = self.info
             self.sender.sendGroupBroadcast()
-            time.sleep(10)
+            time.sleep(7)
 
     def probeNode(self, nodeList):
         num = len(nodeList)

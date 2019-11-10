@@ -27,9 +27,9 @@ class UserService:
         user_info = DB.execute(
             'SELECT `user`.username, `user`.firstname, `user`.lastname, `user`.faculty, `user`.year, `user`.group_id, `self`.is_admin, `self`.is_member FROM `user` INNER JOIN `self` ON `user`.username=`self`.username').fetchone()
         role = 'none'
-        if user_info[6]:  # isAdmin
+        if user_info[6] == 'true':  # isAdmin
             role = 'admin'
-        elif user_info[7]:
+        elif user_info[7] == 'true':
             role = 'member'
         info = {
             'username': user_info[0],
@@ -46,7 +46,7 @@ class UserService:
         }
         if (user_info[5] != '0'):
             group_info = DB.execute(
-                'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (user_info[4],))
+                'SELECT * FROM `group` WHERE group_id=? LIMIT 1', (user_info[5],)).fetchone()
             info['group_name'] = group_info[1]
             info['max_person'] = group_info[2]
         return info
