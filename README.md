@@ -21,3 +21,25 @@ sudo ./olsrd2_static wlp2s0 lo
 ```
 sudo python3 ./main.py
 ```
+
+## Step
+1. open termainal then run
+```
+cd /OONF/build
+sudo ./olsrd2_static wlp2s0 lo
+```
+2. open another terminal and change directory to groupify
+```
+cd /groupify
+```
+3. copy `adhoc-config.example.sh` to be `adhoc-config.sh`
+4. In `adhoc-config.sh`, change the interface from `wlp4s0` to your wireless interface.
+5. run following command to config adhoc and start app
+```
+sudo bash adhoc-config.sh
+sudo python3 main.py
+```
+6. change to manage mode
+```
+sudo bash manage-config.sh
+```
