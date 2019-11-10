@@ -1,4 +1,5 @@
 from tkinter import *
+from dateutil import tz
 import setup
 from GUI_ALL.data_class import *
 from GUI_ALL.data_class_eiei import *
@@ -42,7 +43,10 @@ class GlobalChat(Frame):
         messages = BroadcastMessage.getAll()
         for (firstname, time, message) in messages:
             print(time)
-            dt = datetime.strptime(time, '%Y-%m-%d %H:%M:%S.%f')
+            fromZone = tz.tzutc()
+            toZone = tz.tzlocal()
+            dt = datetime.strptime(
+                time, '%Y-%m-%d %H:%M:%S.%f').replace(tzinfo=fromZone).astimezone(toZone)
             print(dt)
             self.chat.insert(END, firstname + ': ' +
                              message + '(' + dt.strftime('%H:%M') + ')')
