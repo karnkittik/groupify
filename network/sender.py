@@ -198,7 +198,7 @@ class Sender:
         i=0
         threads = [None]*num
         for addr in self.reverseMap.values():
-            threads[i] = SenderWorker(addr, msg)
+            threads[i] = SenderWorker(addr, msg, True)
             threads[i].start()
             i+=1
         for k in range(num):
@@ -207,17 +207,18 @@ class Sender:
 
 class SenderWorker(threading.Thread):
 
-    def __init__(self, addr, msg):
+    def __init__(self, addr, msg, single=False):
         threading.Thread.__init__(self)
         self.addr = addr
         self.packageHash = bytes.fromhex(
             format(random.getrandbits(256), "x").zfill(64))
         self.msg = self.packageHash+msg
         self.sock = None
+        self.single = single
 
-    def run(self, single=False):
+    def run(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        if single == True:
+        if self.single == True:
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1)
         start = time.time()
         logger.debug(
