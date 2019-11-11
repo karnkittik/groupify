@@ -1,6 +1,6 @@
 #! /bin/bash
 
-iface=`ip -br link | grep -v LOOPBACK | awk '{print $1}'`
+iface=`ip -br link | grep wlp | awk '{print $1}'`
 
 sudo service network-manager stop
 sleep 1s
