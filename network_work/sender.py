@@ -194,15 +194,9 @@ class Sender:
         }
         packedHeader = packHeader(header)
         msg = packedHeader + body
-        num = len(self.reverseMap.values())
-        i=0
-        threads = [None]*num
         for addr in self.reverseMap.values():
-            threads[i] = SenderWorker(addr, msg)
-            threads[i].start()
-            i+=1
-        for k in range(num):
-            threads[k].join()
+            worker = SenderWorker(addr, msg)
+            worker.start()
 
 
 class SenderWorker(threading.Thread):
@@ -215,10 +209,8 @@ class SenderWorker(threading.Thread):
         self.msg = self.packageHash+msg
         self.sock = None
 
-    def run(self, single=False):
+    def run(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        if single == True:
-            self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 1)
         start = time.time()
         logger.debug(
             f"On thread #{threading.get_ident()}, start connection attempt")
@@ -231,7 +223,7 @@ class SenderWorker(threading.Thread):
                       'type: ', type(self.addr))
                 self.addr = self.addr[0]
             self.sock.sendto(self.msg, (self.addr, 8421,))
-            if time.time() - iStart > 0.3 or time.time() - start > 6:
+            if time.time() - iStart > 0.3:
                 break
         logger.debug(f"Send complete using {time.time()-start} seconds")
         self.sock.close()

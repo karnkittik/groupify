@@ -65,6 +65,7 @@ class NodeDiscovery (threading.Thread):
             self.info = UserService.infoBroadcast()
             self.sender.info = self.info
             self.sender.sendGroupBroadcast()
+            time.sleep(7)
 
     def probeNode(self, nodeList):
         num = len(nodeList)
