@@ -13,14 +13,16 @@ import random
 
 class NodeDiscovery (threading.Thread):
 
-    def __init__(self, nodeList, nodeMap, reverseMap, eventListener, sender, info):
+    def __init__(self, nodeList, nodeMap, reverseMap, eventListener, sender, net):
         threading.Thread.__init__(self)
         self.nodeList = nodeList
         self.nodeMap = nodeMap
         self.reverseMap = reverseMap
         self.sender = sender
         self.eventListener = eventListener
-        self.info = info
+        self.info = net.selfInfo
+        self.packetSet = net.packetSet
+        self.clearTime = time.time()
 
     def getAllNode(self):
         logger.info("Retreaving nodes...")
@@ -36,6 +38,9 @@ class NodeDiscovery (threading.Thread):
 
     def run(self):
         while True:
+            if time.time() - self.clearTime > 1800:
+                self.packetSet.clear()
+                self.clearTime = time.time()
             nodes = self.getAllNode()
             addedNode, deletedNode = self.diffNode(nodes)
             self.nodeList = nodes

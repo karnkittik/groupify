@@ -44,7 +44,7 @@ class NetworkManager:
 
     def startNodeDiscovery(self):
         self.nodeDiscovery = NodeDiscovery(
-            self.nodeList, self.nodeMap, self.reverseMap, self.eventListener, self.sender, self.selfInfo)
+            self.nodeList, self.nodeMap, self.reverseMap, self.eventListener, self.sender, self)
         self.nodeDiscovery.start()
 
     def sendMessage(self, message):
