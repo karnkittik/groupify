@@ -1,9 +1,18 @@
 #! /bin/bash
 
-sudo service network-manager stop
-sudo ip link set wlp4s0 down
-sudo iwconfig wlp4s0 mode Ad-Hoc
-sudo iwconfig wlp4s0 channel 4
-sudo iwconfig wlp4s0 essid 'CUWIRELESS'
+iface=`ip -br link | grep -v LOOPBACK | awk '{print $1}'`
 
-sudo ip link set wlp4s0 up
+sudo service network-manager stop
+sleep 1s
+
+sudo ip link set $iface down
+sleep 1s
+
+sudo iwconfig $iface mode Ad-Hoc
+sudo iwconfig $iface channel 1
+sudo iwconfig $iface essid 'CUWIRELESS'
+
+sudo ip link set $iface up
+sleep 1s
+
+sudo ip addr add 192.168.1.9/24 dev $iface
