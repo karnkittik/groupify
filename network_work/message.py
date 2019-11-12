@@ -202,7 +202,10 @@ logger.addHandler(ch)
 class UDPListenerMessage (threading.Thread):
     def __init__(self, data, addr, eventListener, info, packetSet, networkManager):
         threading.Thread.__init__(self)
-        self.addr = addr
+        if type(addr) not in [str, bytearray, bytes]:
+            self.addr = addr[0]
+        else:
+            self.addr = addr
         self.eventListener = eventListener
         self._recv_buffer = data
         self.header = None
